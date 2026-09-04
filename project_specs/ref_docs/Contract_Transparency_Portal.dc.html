@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #f6f7f8; -webkit-font-smoothing: antialiased; }
+  a { color: oklch(0.52 0.09 245); text-decoration: none; }
+  a:hover { color: oklch(0.42 0.09 245); text-decoration: underline; }
+  input[type="file"] { display: none; }
+</style>
+</helmet>
+<div style="min-height: 100vh; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21;">
+  <div style="border-bottom: 1px solid #e2e5e8; background: #fff;">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 16px 32px; display: flex; align-items: baseline; gap: 14px;">
+      <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.01em;">Contract Transparency Portal</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8b9299; letter-spacing: 0.04em;">AOUSC &nbsp;·&nbsp; BPA for TSO Support Services &nbsp;·&nbsp; 47QTCA20D00C6</div>
+    </div>
+    <div style="max-width: 1240px; margin: 0 auto; padding: 0 32px; display: flex; gap: 4px; align-items: center; justify-content: space-between;">
+      <div style="display: flex; gap: 4px;">
+        <div onClick="{{ goOrders }}" style="{{ navOrders }}">Call Orders</div>
+        <div onClick="{{ goMsr }}" style="{{ navMsr }}">Monthly Status Reports</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; padding-bottom: 8px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">View as</span>
+        <div onClick="{{ setCustomer }}" style="{{ roleCustomer }}">Customer</div>
+        <div onClick="{{ setPm }}" style="{{ rolePm }}">Project Manager</div>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 34px 32px 80px;">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 22px;">
+        <div>
+          <h1 style="font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 6px;">Call Orders</h1>
+          <div style="font-size: 13px; color: #6c757d;">{{ summary }}</div>
+        </div>
+        <div style="display: flex; gap: 26px; align-items: flex-end;">
+          <sc-if value="{{ isPm }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ pickCallOrder }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px; border: 1px solid #c8ced3; border-radius: 3px; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer;" style-hover="border-color: oklch(0.52 0.09 245); color: oklch(0.52 0.09 245);">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; line-height: 1;">+</span>
+              <span>Upload call order</span>
+              <input type="file" multiple="{{ true }}" ref="{{ coRef }}" onChange="{{ onCallOrderFile }}" />
+            </div>
+          </sc-if>
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 4px;">Obligated</div>
+            <div style="font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums;">{{ totalFunded }}</div>
+          </div>
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 4px;">Expended</div>
+            <div style="font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums;">{{ totalSpend }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; overflow: hidden;">
+        <div style="display: grid; grid-template-columns: 2.1fr 1.4fr 0.7fr 1fr 1.2fr 1fr; gap: 16px; padding: 11px 20px; border-bottom: 1px solid #e2e5e8; background: #fafbfb;">
+          <div onClick="{{ hReg.co.click }}" style="{{ hReg.co.style }}">{{ hReg.co.label }}</div>
+          <div onClick="{{ hReg.pop.click }}" style="{{ hReg.pop.style }}">{{ hReg.pop.label }}</div>
+          <div onClick="{{ hReg.people.click }}" style="{{ hReg.people.style }}">{{ hReg.people.label }}</div>
+          <div onClick="{{ hReg.funded.click }}" style="{{ hReg.funded.style }}">{{ hReg.funded.label }}</div>
+          <div onClick="{{ hReg.spend.click }}" style="{{ hReg.spend.style }}">{{ hReg.spend.label }}</div>
+          <div onClick="{{ hReg.updated.click }}" style="{{ hReg.updated.style }}">{{ hReg.updated.label }}</div>
+        </div>
+        <sc-for list="{{ rows }}" as="row" hint-placeholder-count="10">
+          <div onClick="{{ row.open }}" style="display: grid; grid-template-columns: 2.1fr 1.4fr 0.7fr 1fr 1.2fr 1fr; gap: 16px; padding: 14px 20px; border-bottom: 1px solid #eef0f2; cursor: pointer; align-items: center;" style-hover="background: #fafbfb;">
+            <div>
+              <div style="font-size: 14px; font-weight: 500; color: oklch(0.52 0.09 245);">{{ row.name }}</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8b9299; margin-top: 3px;">{{ row.id }}</div>
+            </div>
+            <div style="font-size: 13px; color: #4b5257; font-variant-numeric: tabular-nums;">{{ row.pop }}</div>
+            <div onClick="{{ row.openPeople }}" style="{{ row.peopleStyle }}">{{ row.people }}</div>
+            <div style="font-size: 13px; text-align: right; font-variant-numeric: tabular-nums;">{{ row.funded }}</div>
+            <div style="text-align: right;">
+              <div style="font-size: 13px; font-variant-numeric: tabular-nums;">{{ row.spend }}</div>
+              <div style="margin-top: 6px; height: 3px; background: #eef0f2; border-radius: 2px; overflow: hidden; margin-left: auto; width: 96px;">
+                <div style="{{ row.barStyle }}"></div>
+              </div>
+              <div style="{{ row.pctStyle }}">{{ row.pct }}</div>
+            </div>
+            <div style="{{ row.updatedStyle }}">{{ row.updated }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size: 11px; color: #8b9299; margin-top: 12px; font-family: 'IBM Plex Mono', monospace;">Source: Project Financial Analysis (AO EAC Table), Call Order Staffing, Jun 2026 MSR</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isMsr }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 34px 32px 80px;">
+      <div style="margin-bottom: 22px;">
+        <h1 style="font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 6px;">Monthly Status Reports</h1>
+        <div style="font-size: 13px; color: #6c757d;">Contractual deliverable submitted at the BPA level. Each report covers all active call orders.</div>
+      </div>
+
+      <sc-if value="{{ isPm }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: flex-end; gap: 16px; border: 1px dashed #c8ced3; background: #fff; border-radius: 3px; padding: 18px 22px; margin-bottom: 20px;">
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-size: 13px; font-weight: 500;">Monthly status report</div>
+          <div style="font-size: 12px; color: #8b9299; margin-top: 2px;">One document per reporting period, covering funding, monthly activity, staffing, travel, issues and risks for every call order. Due the 15th of the following month. A draft assembles funding from the portal and activity from the weekly reports each PM submitted.</div>
+        </div>
+        <label style="display: grid; gap: 6px;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Reporting period</span>
+          <input type="text" value="{{ mfPeriod.value }}" onChange="{{ mfPeriod.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 8px 11px; font-size: 13px; width: 150px; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21;" />
+        </label>
+        <div onClick="{{ newMsr }}" style="{{ btnPrimary }}">New report</div>
+        <div onClick="{{ createMsr }}" style="{{ btnPlain }}">Draft from portal data</div>
+        <div onClick="{{ pickMsrFile }}" style="{{ btnPlain }}">Upload file
+          <input type="file" multiple="{{ true }}" ref="{{ msrRef }}" onChange="{{ onMsrFile }}" />
+        </div>
+      </div>
+      </sc-if>
+
+      <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; overflow: hidden; margin-bottom: 22px;">
+        <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 0.9fr 0.9fr; gap: 14px; padding: 10px 20px; background: #fafbfb; border-bottom: 1px solid #e2e5e8;">
+          <div onClick="{{ hMsr.period.click }}" style="{{ hMsr.period.style }}">{{ hMsr.period.label }}</div>
+          <div onClick="{{ hMsr.file.click }}" style="{{ hMsr.file.style }}">{{ hMsr.file.label }}</div>
+          <div onClick="{{ hMsr.by.click }}" style="{{ hMsr.by.style }}">{{ hMsr.by.label }}</div>
+          <div onClick="{{ hMsr.due.click }}" style="{{ hMsr.due.style }}">{{ hMsr.due.label }}</div>
+          <div onClick="{{ hMsr.status.click }}" style="{{ hMsr.status.style }}">{{ hMsr.status.label }}</div>
+        </div>
+        <sc-for list="{{ msrList }}" as="r" hint-placeholder-count="3">
+          <div onClick="{{ r.select }}" style="{{ r.rowStyle }}" style-hover="background: #f4f7fa;">
+            <div style="font-variant-numeric: tabular-nums;">{{ r.period }}</div>
+            <div style="font-weight: 500; color: oklch(0.52 0.09 245); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ r.file }}</div>
+            <div style="color: #6c757d;">{{ r.by }}</div>
+            <div style="color: #6c757d; font-variant-numeric: tabular-nums;">{{ r.due }}</div>
+            <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #6c757d;">{{ r.status }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; overflow: hidden;">
+        <div style="padding: 16px 22px; border-bottom: 1px solid #e2e5e8; display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+          <div>
+            <div style="font-size: 14px; font-weight: 600;">{{ msrTitle }}</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8b9299; margin-top: 4px;">{{ msrSub }}</div>
+          </div>
+          <sc-if value="{{ msrShowSource }}" hint-placeholder-val="{{ true }}">
+            <a href="{{ msrHref }}" target="_blank" style="font-size: 12px; white-space: nowrap;">Open source document</a>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ msrHasSections }}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; grid-template-columns: 210px 1fr; align-items: stretch;">
+            <div style="border-right: 1px solid #eef0f2; background: #fbfcfc; padding: 12px 0;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; padding: 0 16px 10px;">Call order sections</div>
+              <sc-for list="{{ msrSections }}" as="s" hint-placeholder-count="10">
+                <div onClick="{{ s.select }}" style="{{ s.style }}" style-hover="background: #f1f4f6;">
+                  <div style="font-size: 13px; font-weight: 500;">{{ s.id }}</div>
+                  <div style="font-size: 11px; color: #8b9299; margin-top: 2px;">{{ s.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div>
+              <div style="padding: 18px 22px 6px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+                <div>
+                  <div style="font-size: 15px; font-weight: 600;">{{ secTitle }}</div>
+                  <div style="font-size: 12px; color: #8b9299; margin-top: 3px;">{{ secSub }}</div>
+                </div>
+                <sc-if value="{{ isPm }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ openSf }}" style="{{ btnPlain }}">{{ sfAction }}</div>
+                </sc-if>
+              </div>
+
+              <sc-if value="{{ sfOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="margin: 8px 22px 18px; border: 1px solid #e2e5e8; border-radius: 3px; background: #fbfcfc;">
+                  <div style="padding: 14px 18px; border-bottom: 1px solid #e2e5e8; font-size: 13px; font-weight: 600;">{{ sfHeading }}</div>
+                  <div style="padding: 16px 18px; display: grid; gap: 16px;">
+                    <div>
+                      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 8px;">Funding information</div>
+                      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                        <label style="display: grid; gap: 5px;">
+                          <span style="font-size: 11px; color: #6c757d;">Obligated</span>
+                          <input type="text" value="{{ sfObligated.value }}" onChange="{{ sfObligated.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 7px 9px; font-size: 12px; font-variant-numeric: tabular-nums; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; min-width: 0;" />
+                        </label>
+                        <label style="display: grid; gap: 5px;">
+                          <span style="font-size: 11px; color: #6c757d;">Expended</span>
+                          <input type="text" value="{{ sfExpended.value }}" onChange="{{ sfExpended.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 7px 9px; font-size: 12px; font-variant-numeric: tabular-nums; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; min-width: 0;" />
+                        </label>
+                        <label style="display: grid; gap: 5px;">
+                          <span style="font-size: 11px; color: #6c757d;">Remaining</span>
+                          <input type="text" value="{{ sfRemaining.value }}" onChange="{{ sfRemaining.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 7px 9px; font-size: 12px; font-variant-numeric: tabular-nums; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; min-width: 0;" />
+                        </label>
+                        <label style="display: grid; gap: 5px;">
+                          <span style="font-size: 11px; color: #6c757d;">EAC</span>
+                          <input type="text" value="{{ sfEac.value }}" onChange="{{ sfEac.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 7px 9px; font-size: 12px; font-variant-numeric: tabular-nums; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; min-width: 0;" />
+                        </label>
+                        <label style="display: grid; gap: 5px;">
+                          <span style="font-size: 11px; color: #6c757d;">Over / under</span>
+                          <input type="text" value="{{ sfOver.value }}" onChange="{{ sfOver.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 7px 9px; font-size: 12px; font-variant-numeric: tabular-nums; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; min-width: 0;" />
+                        </label>
+                      </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                      <label style="display: grid; gap: 6px;">
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Activities completed — one per line, optional "Workstream: text"</span>
+                        <textarea rows="7" value="{{ sfCompleted.value }}" onChange="{{ sfCompleted.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 12px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                      </label>
+                      <label style="display: grid; gap: 6px;">
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Activities planned — one per line</span>
+                        <textarea rows="7" value="{{ sfPlanned.value }}" onChange="{{ sfPlanned.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 12px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                      </label>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 0.5fr; gap: 16px;">
+                      <label style="display: grid; gap: 6px;">
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">High priority risks</span>
+                        <textarea rows="4" value="{{ sfRisks.value }}" onChange="{{ sfRisks.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 12px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                      </label>
+                      <label style="display: grid; gap: 6px;">
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">High priority issues</span>
+                        <textarea rows="4" value="{{ sfIssues.value }}" onChange="{{ sfIssues.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 12px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                      </label>
+                      <label style="display: grid; gap: 6px;">
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Requested travel</span>
+                        <textarea rows="4" value="{{ sfTravel.value }}" onChange="{{ sfTravel.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 12px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                      </label>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                      <div onClick="{{ closeSf }}" style="{{ btnPlain }}">Cancel</div>
+                      <div onClick="{{ saveSf }}" style="{{ btnPrimary }}">Save section</div>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ secHasNote }}" hint-placeholder-val="{{ false }}">
+                <div style="margin: 10px 22px 0; padding: 10px 14px; background: #fafbfb; border: 1px solid #eef0f2; border-radius: 3px; font-size: 12px; color: #6c757d; line-height: 1.5;">{{ secNote }}</div>
+              </sc-if>
+              <sc-if value="{{ secHasData }}" hint-placeholder-val="{{ true }}">
+                <div style="display: grid; grid-template-columns: 1fr 1.6fr; align-items: start;">
+                  <div style="padding: 12px 22px 22px;">
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 10px;">Funding information</div>
+                    <sc-for list="{{ secFunding }}" as="f" hint-placeholder-count="5">
+                      <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #f2f4f5; font-size: 13px;">
+                        <div style="color: #4b5257;">{{ f.label }}</div>
+                        <div style="font-variant-numeric: tabular-nums; font-weight: 500;">{{ f.value }}</div>
+                      </div>
+                    </sc-for>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin: 22px 0 10px;">High priority risks</div>
+                    <sc-for list="{{ secRisks }}" as="r" hint-placeholder-count="1">
+                      <div style="font-size: 13px; line-height: 1.55; color: #35393d; padding-bottom: 10px; text-wrap: pretty;">{{ r }}</div>
+                    </sc-for>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin: 12px 0 10px;">High priority issues</div>
+                    <sc-for list="{{ secIssues }}" as="i" hint-placeholder-count="1">
+                      <div style="font-size: 13px; line-height: 1.55; color: #35393d;">{{ i }}</div>
+                    </sc-for>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin: 22px 0 10px;">Requested travel</div>
+                    <div style="font-size: 13px; color: #35393d;">{{ secTravel }}</div>
+                  </div>
+                  <div style="padding: 12px 22px 22px; border-left: 1px solid #eef0f2;">
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 10px;">Activities completed this period</div>
+                    <sc-for list="{{ secCompleted }}" as="a" hint-placeholder-count="6">
+                      <div style="padding: 10px 0; border-bottom: 1px solid #f2f4f5; font-size: 13px; line-height: 1.55; color: #4b5257; text-wrap: pretty;">
+                        <span style="font-weight: 600; color: #1b1e21;">{{ a.title }}</span>
+                        <span>{{ a.text }}</span>
+                      </div>
+                    </sc-for>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin: 22px 0 10px;">Activities planned next period</div>
+                    <sc-for list="{{ secPlanned }}" as="a" hint-placeholder-count="6">
+                      <div style="padding: 10px 0; border-bottom: 1px solid #f2f4f5; font-size: 13px; line-height: 1.55; color: #4b5257; text-wrap: pretty;">
+                        <span style="font-weight: 600; color: #1b1e21;">{{ a.title }}</span>
+                        <span>{{ a.text }}</span>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{ secHasStaff }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin: 22px 0 10px;">Employee listing</div>
+                      <div style="display: grid; grid-template-columns: 1fr 1.3fr 0.8fr 1.5fr; gap: 12px; padding: 8px 0; border-bottom: 1px solid #e2e5e8;">
+                        <div onClick="{{ hMsrStaff.division.click }}" style="{{ hMsrStaff.division.style }}">{{ hMsrStaff.division.label }}</div>
+                        <div onClick="{{ hMsrStaff.name.click }}" style="{{ hMsrStaff.name.style }}">{{ hMsrStaff.name.label }}</div>
+                        <div onClick="{{ hMsrStaff.start.click }}" style="{{ hMsrStaff.start.style }}">{{ hMsrStaff.start.label }}</div>
+                        <div onClick="{{ hMsrStaff.lcat.click }}" style="{{ hMsrStaff.lcat.style }}">{{ hMsrStaff.lcat.label }}</div>
+                      </div>
+                      <sc-for list="{{ secStaff }}" as="p" hint-placeholder-count="6">
+                        <div style="display: grid; grid-template-columns: 1fr 1.3fr 0.8fr 1.5fr; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f2f4f5; font-size: 12px; align-items: baseline;">
+                          <div style="color: #8b9299;">{{ p.division }}</div>
+                          <div style="font-weight: 500;">{{ p.name }}</div>
+                          <div style="color: #6c757d; font-variant-numeric: tabular-nums;">{{ p.start }}</div>
+                          <div style="color: #4b5257;">{{ p.lcat }}</div>
+                        </div>
+                      </sc-for>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ secEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="padding: 18px 22px 26px; font-size: 13px; color: #6c757d;">{{ secEmptyMsg }}</div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ msrPending }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 26px 22px; font-size: 13px; color: #6c757d;">{{ msrPendingMsg }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 26px 32px 80px;">
+      <div onClick="{{ back }}" style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #6c757d; cursor: pointer; margin-bottom: 18px;" style-hover="color: #1b1e21;">
+        <span style="font-family: 'IBM Plex Mono', monospace;">&#8592;</span>
+        <span>All call orders</span>
+      </div>
+
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; margin-bottom: 24px;">
+        <div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8b9299; letter-spacing: 0.06em; margin-bottom: 7px;">{{ co.id }}</div>
+          <h1 style="font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 8px;">{{ co.name }}</h1>
+          <div style="font-size: 13px; color: #6c757d;">{{ co.meta }}</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, auto); gap: 26px; padding: 14px 20px; border: 1px solid #e2e5e8; background: #fff; border-radius: 3px;">
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 5px;">Obligated</div>
+            <div style="font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums;">{{ co.funded }}</div>
+          </div>
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 5px;">Expended</div>
+            <div style="font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums;">{{ co.spend }}</div>
+          </div>
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 5px;">People</div>
+            <div style="font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums;">{{ co.people }}</div>
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasPeriods }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-bottom: 22px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 8px;">Option periods</div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <sc-for list="{{ periods }}" as="p" hint-placeholder-count="2">
+              <div onClick="{{ p.select }}" style="{{ p.style }}">
+                <div style="font-size: 13px; font-weight: 500;">{{ p.label }}</div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8b9299; margin-top: 3px;">{{ p.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display: flex; gap: 4px; border-bottom: 1px solid #e2e5e8; margin-bottom: 24px;">
+        <div onClick="{{ goFin }}" style="{{ tabFin }}">Financials</div>
+        <div onClick="{{ goPeople }}" style="{{ tabPeople }}">People</div>
+        <div onClick="{{ goReports }}" style="{{ tabReports }}">Weekly Status Reports</div>
+      </div>
+
+      <sc-if value="{{ onFin }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 18px; align-items: start;">
+          <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; overflow: hidden;">
+            <div style="padding: 14px 18px; border-bottom: 1px solid #e2e5e8; display: flex; justify-content: space-between; align-items: baseline; gap: 12px;">
+              <div style="font-size: 13px; font-weight: 600;">Funding summary</div>
+              <div style="{{ finStampStyle }}">{{ finStamp }}</div>
+            </div>
+            <sc-if value="{{ isPm }}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 14px 18px; background: #fbfcfc; border-bottom: 1px solid #eef0f2; display: flex; align-items: flex-end; gap: 12px;">
+                <label style="display: grid; gap: 6px; flex: 1;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Update funds expended to date</span>
+                  <input type="text" value="{{ spendDraft.value }}" onChange="{{ spendDraft.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 8px 11px; font-size: 13px; font-variant-numeric: tabular-nums; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21;" />
+                </label>
+                <div onClick="{{ saveSpend }}" style="{{ btnPrimary }}">Save</div>
+              </div>
+            </sc-if>
+            <sc-for list="{{ funding }}" as="r" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; padding: 12px 18px; border-bottom: 1px solid #eef0f2; font-size: 13px; align-items: baseline;">
+                <div style="color: #4b5257;">{{ r.label }}</div>
+                <div style="{{ r.valueStyle }}">{{ r.value }}</div>
+              </div>
+            </sc-for>
+            <div style="padding: 12px 18px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8b9299;">* Expenditures lag one invoice cycle</div>
+          </div>
+
+          <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; overflow: hidden;">
+            <div style="padding: 14px 18px; border-bottom: 1px solid #e2e5e8; font-size: 13px; font-weight: 600;">Contracted labor categories</div>
+            <div style="display: grid; grid-template-columns: 2fr 0.5fr 0.7fr 0.8fr 1fr; gap: 12px; padding: 10px 18px; background: #fafbfb; border-bottom: 1px solid #e2e5e8;">
+              <div onClick="{{ hLcat.name.click }}" style="{{ hLcat.name.style }}">{{ hLcat.name.label }}</div>
+              <div onClick="{{ hLcat.fte.click }}" style="{{ hLcat.fte.style }}">{{ hLcat.fte.label }}</div>
+              <div onClick="{{ hLcat.hours.click }}" style="{{ hLcat.hours.style }}">{{ hLcat.hours.label }}</div>
+              <div onClick="{{ hLcat.rate.click }}" style="{{ hLcat.rate.style }}">{{ hLcat.rate.label }}</div>
+              <div onClick="{{ hLcat.ext.click }}" style="{{ hLcat.ext.style }}">{{ hLcat.ext.label }}</div>
+            </div>
+            <sc-for list="{{ lcats }}" as="l" hint-placeholder-count="8">
+              <div style="display: grid; grid-template-columns: 2fr 0.5fr 0.7fr 0.8fr 1fr; gap: 12px; padding: 11px 18px; border-bottom: 1px solid #eef0f2; font-size: 13px; font-variant-numeric: tabular-nums; align-items: center;">
+                <div style="color: #1b1e21;">{{ l.name }}</div>
+                <div style="text-align: right;">{{ l.fte }}</div>
+                <div style="text-align: right; color: #6c757d;">{{ l.hours }}</div>
+                <div style="text-align: right; color: #6c757d;">{{ l.rate }}</div>
+                <div style="text-align: right;">{{ l.ext }}</div>
+              </div>
+            </sc-for>
+            <div style="display: grid; grid-template-columns: 2fr 0.5fr 0.7fr 0.8fr 1fr; gap: 12px; padding: 12px 18px; background: #fafbfb; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;">
+              <div>Total contracted value</div>
+              <div style="text-align: right;">{{ lcatFte }}</div>
+              <div></div>
+              <div></div>
+              <div style="text-align: right;">{{ lcatTotal }}</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ onPeople }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 20px;">
+          <sc-for list="{{ peopleStats }}" as="s" hint-placeholder-count="5">
+            <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; padding: 15px 18px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 8px;">{{ s.label }}</div>
+              <div style="font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums;">{{ s.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; overflow: hidden;">
+          <div style="padding: 14px 20px; border-bottom: 1px solid #e2e5e8; display: flex; justify-content: space-between; align-items: baseline; gap: 12px;">
+            <div style="font-size: 13px; font-weight: 600;">Assigned personnel</div>
+            <div style="{{ peopleStampStyle }}">{{ peopleStamp }}</div>
+          </div>
+          <div style="{{ staffHeadCols }}">
+            <div onClick="{{ hStaff.name.click }}" style="{{ hStaff.name.style }}">{{ hStaff.name.label }}</div>
+            <div onClick="{{ hStaff.lcat.click }}" style="{{ hStaff.lcat.style }}">{{ hStaff.lcat.label }}</div>
+            <div onClick="{{ hStaff.rate.click }}" style="{{ hStaff.rate.style }}">{{ hStaff.rate.label }}</div>
+            <div onClick="{{ hStaff.status.click }}" style="{{ hStaff.status.style }}">{{ hStaff.status.label }}</div>
+            <sc-if value="{{ isPm }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #8b9299;">Remove</div>
+            </sc-if>
+          </div>
+          <sc-for list="{{ staff }}" as="p" hint-placeholder-count="10">
+            <div style="{{ staffCols }}">
+              <div style="{{ p.nameStyle }}">{{ p.name }}</div>
+              <div style="color: #4b5257;">{{ p.lcat }}</div>
+              <div style="text-align: right; font-variant-numeric: tabular-nums; color: #6c757d;">{{ p.rate }}</div>
+              <sc-if value="{{ isPm }}" hint-placeholder-val="{{ false }}">
+                <select value="{{ p.status }}" onChange="{{ p.setStatus }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 5px 7px; font-size: 12px; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; background: #fff;">
+                  <sc-for list="{{ p.options }}" as="o" hint-placeholder-count="4">
+                    <option value="{{ o }}">{{ o }}</option>
+                  </sc-for>
+                </select>
+                <div onClick="{{ p.remove }}" style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #b6bcc1; cursor: pointer;" style-hover="color: oklch(0.62 0.14 45);">&#215;</div>
+              </sc-if>
+              <sc-if value="{{ isCustomer }}" hint-placeholder-val="{{ true }}">
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 11px;">{{ p.status }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ isPm }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: flex-end; gap: 10px; padding: 14px 20px; background: #fbfcfc;">
+              <label style="display: grid; gap: 6px; flex: 1.5;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Name</span>
+                <input type="text" value="{{ newStaff.name.value }}" onChange="{{ newStaff.name.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 8px 11px; font-size: 13px; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21;" />
+              </label>
+              <label style="display: grid; gap: 6px; flex: 1.5;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Labor category</span>
+                <input type="text" value="{{ newStaff.lcat.value }}" onChange="{{ newStaff.lcat.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 8px 11px; font-size: 13px; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21;" />
+              </label>
+              <label style="display: grid; gap: 6px; width: 110px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Rate</span>
+                <input type="text" value="{{ newStaff.rate.value }}" onChange="{{ newStaff.rate.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 8px 11px; font-size: 13px; font-variant-numeric: tabular-nums; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21;" />
+              </label>
+              <div onClick="{{ addStaff }}" style="{{ btnPrimary }}">Add person</div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; overflow: hidden; margin-top: 18px;">
+          <div style="padding: 14px 20px; border-bottom: 1px solid #e2e5e8; font-size: 13px; font-weight: 600;">By labor category</div>
+          <sc-for list="{{ lcatGroups }}" as="l" hint-placeholder-count="5">
+            <div style="border-bottom: 1px solid #eef0f2;">
+              <div style="display: grid; grid-template-columns: 2.2fr 0.7fr 0.7fr 0.9fr; gap: 16px; padding: 11px 20px; background: #fafbfb; font-size: 13px; align-items: center;">
+                <div style="font-weight: 600;">{{ l.name }}</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #6c757d;">{{ l.fte }} FTE</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #6c757d;">{{ l.assigned }} filled</div>
+                <div style="text-align: right; font-variant-numeric: tabular-nums; color: #6c757d;">{{ l.rate }}</div>
+              </div>
+              <sc-if value="{{ l.isEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="padding: 10px 20px 10px 34px; border-top: 1px solid #f2f4f5; font-size: 12px; color: #8b9299;">No resources assigned to this category</div>
+              </sc-if>
+              <sc-for list="{{ l.people }}" as="p" hint-placeholder-count="2">
+                <div style="display: grid; grid-template-columns: 2.2fr 0.7fr 0.7fr 0.9fr; gap: 16px; padding: 10px 20px 10px 34px; border-top: 1px solid #f2f4f5; font-size: 13px; align-items: center;">
+                  <div style="{{ p.style }}">{{ p.name }}</div>
+                  <div></div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8b9299;">{{ p.status }}</div>
+                  <div style="text-align: right; font-variant-numeric: tabular-nums;">{{ p.rate }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ onReports }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ isPm }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; align-items: center; gap: 16px; border: 1px dashed #c8ced3; background: #fff; border-radius: 3px; padding: 18px 22px; margin-bottom: 20px;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 13px; font-weight: 500;">Weekly status report</div>
+              <div style="font-size: 12px; color: #8b9299; margin-top: 2px;">The Project Manager records accomplishments, planned activities, risks, issues, customer actions and decisions — filled in here or uploaded as a document.</div>
+            </div>
+            <div onClick="{{ openForm }}" style="{{ btnPrimary }}">Create report</div>
+            <div onClick="{{ pickFile }}" style="{{ btnPlain }}">Upload file
+              <input type="file" multiple="{{ true }}" ref="{{ fileRef }}" onChange="{{ onFile }}" />
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ formOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; margin-bottom: 20px;">
+            <div style="padding: 16px 22px; border-bottom: 1px solid #e2e5e8; font-size: 14px; font-weight: 600;">New weekly status report</div>
+            <div style="padding: 18px 22px; display: grid; gap: 16px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <label style="display: grid; gap: 6px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Week ending</span>
+                  <input type="text" value="{{ wfWeek.value }}" onChange="{{ wfWeek.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 13px; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21;" />
+                </label>
+                <label style="display: grid; gap: 6px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Submitted by (Project Manager)</span>
+                  <input type="text" value="{{ wfBy.value }}" onChange="{{ wfBy.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 13px; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21;" />
+                </label>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <label style="display: grid; gap: 6px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Accomplishments — one per line</span>
+                  <textarea rows="5" value="{{ wfAcc.value }}" onChange="{{ wfAcc.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 13px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                </label>
+                <label style="display: grid; gap: 6px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Planned activities — one per line</span>
+                  <textarea rows="5" value="{{ wfPlan.value }}" onChange="{{ wfPlan.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 13px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                </label>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                <label style="display: grid; gap: 6px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Risks</span>
+                  <textarea rows="3" value="{{ wfRisk.value }}" onChange="{{ wfRisk.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 13px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                </label>
+                <label style="display: grid; gap: 6px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Issues</span>
+                  <textarea rows="3" value="{{ wfIssue.value }}" onChange="{{ wfIssue.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 13px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                </label>
+                <label style="display: grid; gap: 6px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299;">Customer actions and decisions</span>
+                  <textarea rows="3" value="{{ wfAct.value }}" onChange="{{ wfAct.onChange }}" style="border: 1px solid #d6dade; border-radius: 3px; padding: 9px 11px; font-size: 13px; line-height: 1.5; font-family: 'IBM Plex Sans', Helvetica, sans-serif; color: #1b1e21; resize: vertical;"></textarea>
+                </label>
+              </div>
+              <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <div onClick="{{ closeForm }}" style="{{ btnPlain }}">Cancel</div>
+                <div onClick="{{ submitWf }}" style="{{ btnPrimary }}">Submit report</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; overflow: hidden; margin-bottom: 18px;">
+          <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 0.8fr; gap: 14px; padding: 10px 20px; background: #fafbfb; border-bottom: 1px solid #e2e5e8;">
+            <div onClick="{{ hWsr.week.click }}" style="{{ hWsr.week.style }}">{{ hWsr.week.label }}</div>
+            <div onClick="{{ hWsr.file.click }}" style="{{ hWsr.file.style }}">{{ hWsr.file.label }}</div>
+            <div onClick="{{ hWsr.by.click }}" style="{{ hWsr.by.style }}">{{ hWsr.by.label }}</div>
+            <div onClick="{{ hWsr.status.click }}" style="{{ hWsr.status.style }}">{{ hWsr.status.label }}</div>
+          </div>
+          <sc-for list="{{ reports }}" as="r" hint-placeholder-count="2">
+            <div onClick="{{ r.select }}" style="{{ r.rowStyle }}" style-hover="background: #f4f7fa;">
+              <div style="font-variant-numeric: tabular-nums;">{{ r.week }}</div>
+              <div style="font-weight: 500; color: oklch(0.52 0.09 245); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ r.file }}</div>
+              <div style="color: #6c757d;">{{ r.by }}</div>
+              <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #6c757d;">{{ r.status }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background: #fff; border: 1px solid #e2e5e8; border-radius: 3px; overflow: hidden;">
+          <div style="padding: 16px 22px; border-bottom: 1px solid #e2e5e8; display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">{{ paneTitle }}</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8b9299; margin-top: 4px;">{{ paneSub }}</div>
+            </div>
+            <sc-if value="{{ showSource }}" hint-placeholder-val="{{ true }}">
+              <a href="{{ paneHref }}" target="_blank" style="font-size: 12px; white-space: nowrap;">Open source document</a>
+            </sc-if>
+          </div>
+          <sc-if value="{{ hasWeekly }}" hint-placeholder-val="{{ true }}">
+            <div style="padding: 14px 22px 20px; display: grid; gap: 18px;">
+              <sc-for list="{{ groups }}" as="g" hint-placeholder-count="1">
+                <div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8b9299; margin-bottom: 4px;">{{ g.label }}</div>
+                  <sc-for list="{{ g.items }}" as="h" hint-placeholder-count="3">
+                    <div style="display: grid; grid-template-columns: 12px 1fr; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f2f4f5; font-size: 13px; line-height: 1.55; color: #35393d;">
+                      <div style="color: #b6bcc1; font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding-top: 2px;">&#8212;</div>
+                      <div>{{ h }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 26px 22px; font-size: 13px; color: #6c757d;">{{ pendingMsg }}</div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ACCENT = "oklch(0.52 0.09 245)";
+const WARN = "oklch(0.62 0.14 45)";
+
+// Sourced from: Project Financial Analysis Next Gen.xlsx (AO EAC Table, per-call tabs),
+// Call Order Staffing.xlsx (Resource by Call Order), Jun 2026 MSR.docx, Weekly Touchpoint 090826.docx
+const DATA = [
+  {
+    id: "Call 2.3", group: "Call 002", groupName: "Enterprise Architecture (EA) Support", name: "Enterprise Architecture (EA) Support", pop: "9/26/25 – 9/25/26",
+    funded: 3225811.68, spend: 2575020.37, remaining: 650791.31, eac: 3146252.37, over: 79559.31,
+    pm: "Ceenil Kaur",
+    lcats: [["Business Analyst – Senior",2,1912,122.45],["Enterprise Architect",3,1912,115.47],["Systems Integration Engineer",3,1912,154.94],["Project Manager – Mid",1,1912,81.63],["Communications Specialist – Senior",1,1912,75.92],["Cloud Architect – CDaaS/PaaS/Cloud Hosting",1,1912,155.10],["Systems Architect",2,1912,110.20],["Data Architect",1,1912,97.96],["Systems Integration Engineer",5,478,154.94],["Business Analyst – Senior",1,478,122.45],["Business Analyst – Mid",1,478,97.96]],
+    staff: [["Alisa Welch","Business Analyst – Senior",122.45,"Moving to Business Architect"],["Ramajyothi Indukuri","Business Analyst – Senior",122.45,"Assigned"],["Ranga Lakshminarayanan","Cloud Architect – CDaaS/PaaS",155.10,"Assigned"],["Alec Gura","Communications Specialist",75.92,"Assigned"],["Yenenesh Shewaneh","Data Architect",97.96,"Assigned"],["Sudeep Telang","Enterprise Architect",115.47,"Assigned"],["Vidyadhar Tanksale","Enterprise Architect",115.47,"Assigned"],["Carl Mosca","Systems Integration Engineer",154.94,"LCAT change proposed"],["Ceenil Kaur","Project Manager",81.63,"Assigned"],["Christopher Harkins","Systems Integration Engineer",154.94,"Assigned"],["Jayson Guglietta","Systems Integration Engineer",154.94,"Replacement requested"],["Navin Keswani","Systems Integration Engineer",154.94,"Assigned"],["Zakariya Saleh","Systems Architect",110.20,"Assigned"],["Mohammad Khan","Systems Integration Engineer",154.94,"Assigned"],["Chetna Walia","Business Analyst – Senior",122.45,"Started 8/24"],["Nagarajan Pattabiraman","Systems Integration Engineer",154.94,"Assigned"],["David Ylizarde","Systems Integration Engineer",154.94,"PIV pending"],["John Bauer","Systems Integration Engineer",154.94,"Assigned"],["John Castro","Systems Integration Engineer",154.94,"Assigned"],["VACANT – Madhavan Ramamoorthy resigned 11/30","Systems Architect",108.04,"Vacant"],["VACANT – Business Architect (Alisa Welch to cover)","Systems Integration Engineer",154.94,"Vacant"],["VACANT – Data Architect, sourcing","Business Analyst – Mid",97.97,"Vacant"]],
+    highlights: ["Business Architect: moving Alisa Welch into the role from EA Standards; Nada Conway planned as backfill (started 8/27).","Business Analyst: Chetna Walia started 8/24.","Data Architect: final selection down to one candidate; Nat Iyer is no longer available.","Discrepancy: 3 Systems Integration Engineers are contracted, 5 are currently assigned.","This call order period ends 9/25/26."]
+  },
+  {
+    id: "Call 4.3", group: "Call 004", groupName: "Multifactor Authentication (MFA) Support", name: "Multifactor Authentication (MFA) Support", pop: "4/10/26 – 4/9/27",
+    funded: 1941638.40, spend: 520681.92, remaining: 1420956.48, eac: 1457738.96, over: 483899.44,
+    pm: "Lauryn Brown",
+    lcats: [["Systems Integration Engineer",6,1920,154.94],["Project Manager",1,1920,81.63]],
+    staff: [["Muhammad Nazir","Systems Integration Engineer",154.94,"Assigned"],["Narayan Verma","Systems Integration Engineer",154.94,"Assigned"],["Sunil Bandapally","Systems Integration Engineer",154.94,"Assigned"],["Lauryn Brown","Project Manager",81.63,"Maternity leave, returns 9/8"],["Sangamewar Gupta","Systems Integration Engineer",154.94,"Assigned"],["Karaman Talibov","Systems Integration Engineer",154.94,"Assigned"],["VACANT – Holding","Systems Integration Engineer",151.90,"Vacant"]],
+    highlights: ["Lauryn Brown has been on maternity leave since 8/11; anticipated return 9/8 after an additional week.","One Systems Integration Engineer position is vacant and on hold."]
+  },
+  {
+    id: "Call 13.1", group: "Call 013", groupName: "DevSecOps Support", name: "DevSecOps Support", pop: "9/13/25 – 9/12/26",
+    funded: 1491977.28, spend: 1242382.55, remaining: 249594.73, eac: 1463896.15, over: 28081.13,
+    pm: "—",
+    lcats: [["Systems Integration Engineer",4,1920,154.94],["Business Analyst – Senior",1,1920,122.45]],
+    staff: [["Madhur Gupda","Business Analyst – Senior",124.90,"Assigned"],["Vijay Sivaprakasam","Systems Integration Engineer",158.04,"Assigned"],["Harsh Jain","Systems Integration Engineer",158.04,"Assigned"],["Olusola Awodeu","Systems Integration Engineer",158.04,"Assigned"],["Devarshi Pathak","Systems Integration Engineer",158.04,"PIV received"],["Mohana Molabanti","Systems Integration Engineer",158.04,"Assigned"]],
+    highlights: ["No status items reported for the current touchpoint."]
+  },
+  {
+    id: "Call 13.2", group: "Call 013", groupName: "DevSecOps Support", name: "DevSecOps Support", pop: "9/13/26 – 9/12/27",
+    funded: 1756992.00, spend: 0, remaining: 1756992.00, eac: null, over: null,
+    pm: "—",
+    lcats: [["Systems Integration Engineer",4,1920,154.94],["Business Analyst – Senior",1,1920,122.45]],
+    staff: [],
+    highlights: ["Option period funded; performance begins 9/13/26."]
+  },
+  {
+    id: "Call 15.1", group: "Call 015", groupName: "Innovation & Research (I&R)", name: "Innovation & Research (I&R)", pop: "9/25/25 – 9/24/26",
+    funded: 1853995.87, spend: 1069330.24, remaining: 784665.63, eac: 1310034.40, over: 543961.47,
+    pm: "—",
+    lcats: [["Business Analyst – Senior",1,1912,122.45],["Software Engineer",1,1912,141.14],["Artificial Intelligence (AI) Engineer",2,1912,122.45],["Enterprise Architect",1,1912,115.47],["Systems Integration Engineer",1,1912,154.94],["Information Assurance Engineer",1,1912,85.71]],
+    staff: [["Louie Chen","Artificial Intelligence (AI) Engineer",122.45,"Assigned"],["Kenneth Megill","Business Analyst – Senior",122.45,"Assigned"],["Louden Motina","Enterprise Architect",115.47,"Assigned"],["Jason De Kock","Systems Integration Engineer",154.94,"Assigned"],["Syed Abbas","Information Assurance Engineer",85.71,"Assigned"],["Dhruvi Rathod","Information Assurance Engineer",85.71,"Assigned"],["VACANT – Holding","Artificial Intelligence (AI) Engineer",120.05,"Vacant"],["VACANT – Holding","Software Engineer",141.14,"Vacant"],["VACANT – FTE covered by Syed and Dhruvi full time","Software Developer",103.00,"Vacant"]],
+    highlights: ["Expansion positions beginning 9/25 at the start of the new option period: two Agile Coach/Consultant – Senior and one Business Systems Analyst – Mid.","Shawn Faunce and Megan Giesy move over from the ZTA call order for the Agile Coach/Consultant roles.","Mary Raguso moves over from ZTA for the Business Systems Analyst – Mid position."]
+  },
+  {
+    id: "Call 16.1", group: "Call 016", groupName: "Reliability & Availability Engineering (RAE)", name: "Reliability & Availability Engineering (RAE)", pop: "2/26/26 – 2/25/27",
+    funded: 3383404.80, spend: 1270961.22, remaining: 2112443.58, eac: 3139912.02, over: 243492.78,
+    pm: "Andrew Camp",
+    lcats: [["Agile Coach",4,1920,143.11],["Communications Specialist",1,1920,75.92],["Cyber Threat Analyst",2,1920,96.18],["Enterprise Architect",2,1920,115.47],["Information Systems Engineer",2,1920,122.45],["Project Manager",1,1920,81.63],["Systems Engineer",3,1920,111.43]],
+    staff: [["Darren Boykin","Information Systems Engineer",122.45,"Assigned"],["Andrew Camp","Project Manager",81.63,"Assigned"],["Jessica De La Salle","Communications Specialist",75.92,"Assigned"],["Hao (Ray) Duong","Software Engineer",141.14,"Assigned"],["Benjamin Eseku","Cyber Threat Analyst",96.18,"Assigned"],["Prathyusha Gaddam","Information Systems Engineer",122.45,"Assigned"],["Deloy Johnson","Systems Engineer",111.43,"Assigned"],["Joseph Lee","Systems Engineer",111.43,"Assigned"],["Austin Bishop","Agile Coach",143.11,"PIV received"],["Shamroze Niazi","Enterprise Architect",115.47,"Assigned"],["Paul Schomburg","Agile Coach",143.11,"Assigned"],["Pankaj Shishodia","Agile Coach",143.11,"CMMI training"],["Patrick Shubird","Systems Engineer",111.43,"Assigned"],["Nick Sundar","Enterprise Architect",115.47,"Assigned"],["Ram Daesari","Agile Coach",143.11,"Assigned"],["Dora Mensah","Cyber Threat Analyst",96.18,"Offboarded 8/28"]],
+    highlights: ["Dora Mensah, Cyber Threat Analyst, offboarded 8/28; PIV card and laptop retrieved and returned to the AO.","Reza begins work once his laptop arrives; targeting 9/8.","Outreach to Chuck Diard for Courtroom Technology support; he is interested in a full-time opportunity."]
+  },
+  {
+    id: "Call 17", group: "Call 017", groupName: "Enterprise IT Program Management (EITPM)", name: "Enterprise IT Program Management (EITPM)", pop: "9/1/25 – 8/31/26",
+    funded: 1681420.80, spend: 1452328.66, remaining: 229092.14, eac: 1615344.66, over: 66076.14,
+    pm: "Taiwo Adenuga",
+    lcats: [["Project Manager",1,1920,81.63],["Agile Coach / Consultant",5,1920,143.11],["Agile Certified Professional",1,1920,78.56]],
+    staff: [["Taiwo Adenuga","Project Manager",81.63,"Assigned"],["Samrah Kashif","Agile Coach / Consultant",143.11,"Assigned"],["Patti April","Agile Coach / Consultant",143.11,"Assigned"],["Robert Carpenter","Agile Coach / Consultant",143.11,"Assigned"],["Natalee Savage","Agile Coach / Consultant",143.11,"Assigned"],["Amir Bawani","Agile Coach / Consultant",143.11,"Assigned"],["Dipika Jain","Agile Certified Professional",78.56,"Assigned"],["James Rader","Agile Coach / Consultant",143.11,"Assigned"]],
+    highlights: ["No status items reported for the current touchpoint."]
+  },
+  {
+    id: "Call 17.1", group: "Call 017", groupName: "Enterprise IT Program Management (EITPM)", name: "Enterprise IT Program Management (EITPM)", pop: "9/1/26 – 8/31/27",
+    funded: 1940185.51, spend: 0, remaining: 1940185.51, eac: null, over: null,
+    pm: "Taiwo Adenuga",
+    lcats: [["Project Manager",1,1920,81.63],["Agile Coach / Consultant",5,1920,143.11],["Agile Certified Professional",1,1920,78.56]],
+    staff: [],
+    highlights: ["Option period funded; performance begins 9/1/26."]
+  },
+  {
+    id: "Call 18", group: "Call 018", groupName: "Zero Trust Architecture (ZTA)", name: "Zero Trust Architecture (ZTA)", pop: "9/15/25 – 9/14/26",
+    funded: 2000000.00, spend: 1469174.48, remaining: 530825.52, eac: 1750020.08, over: 249979.92,
+    pm: "—",
+    lcats: [["Agile Coach / Consultant",2,1920,143.11],["Cloud Architect",3,1920,155.10],["Systems Integration Engineer",1,1920,154.94],["Data Scientist",1,1920,141.44],["Information Systems Engineer",1,1920,122.45]],
+    staff: [["Shawn Faunce","Agile Coach / Consultant",143.11,"Moving to I&R 9/25"],["Nat Iyer","Cloud Architect",155.10,"No longer available"],["Tapan Rath","Cloud Architect",155.10,"Assigned"],["GyVonda N McCain","Systems Integration Engineer",154.94,"Assigned"],["David Prompovitch","Data Scientist",141.44,"Assigned"],["Mary Raguso","Information Systems Engineer",122.45,"Moving to I&R 9/25"],["Megan Giesy","Agile Coach / Consultant",143.11,"Moving to I&R 9/25"],["VACANT – Omni Davis","Cloud Architect",155.10,"Vacant"]],
+    highlights: ["Training videos return to the airport model: four planned videos, three under two minutes and one around three to four minutes.","All storyboards are complete and reviewed by Cheryl and Kevin.","This call order period ends 9/14/26."]
+  },
+  {
+    id: "Call 19", group: "Call 019", groupName: "Technology Business Management (TBM) Study", name: "Technology Business Management (TBM) Study", pop: "9/2/26 – 4/1/27",
+    funded: 288249.56, spend: 0, remaining: 288249.56, eac: null, over: null,
+    pm: "—", lcats: [], staff: [],
+    highlights: ["New call order awarded 8/28.","To be included in the monthly status report alongside the other call orders."]
+  }
+];
+
+const WEEKLY_REPORTS = [
+  { key: "wk-090826", week: "Sep 8, 2026", file: "Weekly Touchpoint 090826.docx", by: "Paul Schomburg", status: "Submitted", href: "uploads/Weekly Touchpoint 090826.docx" }
+];
+
+// BPA-level contractual deliverable. One document per reporting period, covering all call orders.
+const MONTHLY_REPORTS = [
+  { key: "msr-jun26", period: "June 2026", file: "Jun 2026 MSR.docx", by: "Program Office", due: "Jul 15, 2026", status: "Accepted", href: "uploads/Jun 2026 MSR.docx",
+    scope: "Reporting Period: June 1–30, 2026",
+    program: {
+      newContractors: [["Ram Dasari", "6/29/2026", "CO 16", "Agile Coach"]],
+      departures: [["Omni Davis", "5/29/2026", "CO 18", "Cloud Architect"]],
+      movement: []
+    },
+    sections: {
+      "Call 2.3": {
+        title: "Call Order 002 – Enterprise Architecture (EA) Support",
+        funding: [["Funds Obligated", 3225811.68], ["Funds Expended to Date", 1695515.53], ["Funds Remaining", 1530296.15], ["Estimate at Completion", 3087893.53], ["Over/Under", 137918.15]],
+        completed: [
+          ["Technical Architecture (As Is)", "Continued development and refinement of Enterprise Architecture (EA) As-Is dashboards. Coordinated with Dynatrace on API integration and runtime validation planning. Advanced Technology Reference Model (TRM) lifecycle governance by refining evaluation criteria and hierarchy alignment based on stakeholder feedback and governance reviews."],
+          ["IT Application and Systems Authentication Standard", "Completed review activities and submitted the standard for EAMB approval. Publication on JNET and SharePoint is pending approval."],
+          ["Blue Folder and Judiciary-Wide Review Process", "Completed revisions to the Blue Folder and Judiciary-Wide Review process to align with updated workflows and organizational changes. Updated supporting process documentation and checklists."],
+          ["IT Standards Center of Excellence (COE)", "Completed SharePoint site layout and wireframe development. Conducted multiple stakeholder demonstrations to collect feedback on navigation and user experience. Prepared the site for final demonstration and User Acceptance Testing (UAT)."],
+          ["IT Public Cloud Standard", "Continued development of the standard through collaborative sessions focused on requirements analysis, content development, and stakeholder alignment."],
+          ["IT Vulnerability and Patch Management Standard", "Continued development of the standard through stakeholder engagement, requirements refinement, and content development activities."],
+          ["Security Domain", "Continued development of the Controlled Unclassified Information (CUI) Policy Framework to support Data Loss Prevention (DLP) requirements and guidance. Completed the Future of Infrastructure and CM/ECF Executive and Technical documents and submitted them for leadership review."],
+          ["IT Standards Maturity Model", "Conducted working sessions and presented the maturity model to leadership. The model is currently undergoing final review prior to publication on the IT Standards Center of Excellence (COE) SharePoint site."],
+          ["Judiciary IT Standards Documentation Update", "Continued progress on the COE template library, with most templates drafted and under review. The library will provide standardized artifacts that support the end-to-end IT standards lifecycle."]
+        ],
+        planned: [
+          ["Technical Architecture (As Is)", "Continue enhancement of EA As-Is dashboards through coordination with the OTIS team to implement a JSON REST API for automated daily VM metadata refreshes, replacing manual CSV extracts. Continue Dynatrace API integration and runtime validation activities. Finalize TRM lifecycle governance refinements."],
+          ["IT Application and Systems Authentication Standard", "Support publication activities upon receipt of EAMB approval."],
+          ["Blue Folder and Judiciary-Wide Review Process", "Project completed; no additional activities planned."],
+          ["IT Standards Center of Excellence (COE)", "Conduct the final stakeholder demonstration, complete UAT activities, and prepare the site for production deployment."],
+          ["IT Public Cloud Standard", "Finalize the initial draft of the standard and submit it for SME review and feedback."],
+          ["IT Vulnerability and Patch Management Standard", "Finalize the initial draft of the standard and submit it for SME review and feedback."],
+          ["Security Domain", "Continue assessment activities related to VMware replacement efforts and advance development of the CUI Policy Framework supporting DLP requirements."],
+          ["IT Standards Maturity Model", "Complete final review activities and publish the maturity model on the COE SharePoint site."],
+          ["Judiciary IT Standards Documentation Update", "Complete the remaining COE templates and publish the template library."]
+        ],
+        staffing: [["Enterprise Arch","Amit Yadav","10/3/2022","Sys Integration Engr"],["Enterprise Arch","Chris Harkins","11/1/2022","Sys Integration Engr"],["Enterprise Arch","Vidyadhar Tanksale","3/13/2023","Enterprise Architect"],["Enterprise Arch","Alisa Welch","10/24/2022","Business Analyst"],["Enterprise Arch","Alec Gura","7/10/2023","Communications Specialist"],["Enterprise Arch","Jason Guglietta","12/4/2023","Systems Integration Engineer"],["Enterprise Arch","Sudeep Telang","11/5/2024","Enterprise Architect"],["Enterprise Arch","Navin Keswani","11/4/2024","Systems Integration Engineer"],["Enterprise Arch","Ranga Lakshminarayanan","4/6/2026","Cloud Architect"],["Enterprise Arch","Ramajyothi Indukuri","11/18/2024","Business Analyst"],["Enterprise Arch","Zakariya Saleh","12/9/2024","Systems Architect"],["Enterprise Arch","Yenenesh Shewaneh","3/25/2025","Data Architect"],["Enterprise Arch","Carl Mosca","12/8/2025","Systems Integration Engineer"],["Enterprise Arch","Ceenil Kaur","12/15/2025","Project Manager"],["Enterprise Arch","Moiz Khan","10/15/2024","Systems Integration Engineer"]],
+        risks: ["Schedule Adjustment: A 30–60 day schedule extension may be required for the IT Public Cloud Standard and IT Vulnerability & Patch Management Standard to accommodate additional development, stakeholder review, and EAMB approval activities."],
+        issues: [], travel: "N/A"
+      },
+      "Call 4.3": {
+        title: "Call Order 004 – MFA Support",
+        funding: [["Funds Obligated", 1903545.60], ["Funds Expended to Date", 1470887.63], ["Funds Remaining", 432657.97], ["Estimate at Completion", 1510035.15], ["Over/Under", 393510.45]],
+        completed: [
+          ["MFA Support", "Continued operational support across MFA initiatives, including Login.gov onboarding support, application team coordination, and vulnerability remediation activities. Supported OSCAR Login.gov planning efforts through recurring working sessions, application walkthroughs, questionnaire reviews, and documentation updates. Resolved longstanding DUO support issue impacting MacOS offline authentication."],
+          ["WHfB", "Continued troubleshooting and escalation efforts with Microsoft related to on-premises Certificate Trust enrollment and authentication issues. Collected and provided additional logs to Microsoft engineering teams and updated hybrid deployment documentation."],
+          ["PIV-I for VPN", "Advanced project closeout activities through stakeholder review and recommendation package updates. Coordinated review cycles with Michael Keyes, the EA Team, and ISO stakeholders."],
+          ["Adaptive Authentication", "Progressed Proof of Concept implementation through ISVA installation and configuration, adaptive authentication use case development, conditional access policy configuration, and lab environment expansion. Completed testing scenarios for Zscaler VPN, Windows desktop login, and conditional access risk-factor evaluations."],
+          ["Elevated Access", "Continued development of current-state architecture documentation, process flows, and gap analysis activities in coordination with CyberArk stakeholders. Progressed environment access coordination and testing preparation activities."],
+          ["YubiKey", "Project formally closed. Completed lessons learned documentation, archived project artifacts, finalized stakeholder communications, and transitioned deliverables into long-term reference documentation status."],
+          ["EA As-Is", "Continued development and refinement of EA As-Is dashboards and coordination with Dynatrace related to API integration and runtime validation planning. Continued refinement of TRM lifecycle governance, evaluation criteria, and hierarchy alignment."]
+        ],
+        planned: [
+          ["MFA Support", "Continue Login.gov onboarding support and coordination activities, vulnerability tracking activities, refining templates to use across all projects, and updating VM processes."],
+          ["WHfB", "Continue Microsoft escalation efforts and engineering coordination to resolve remaining on-prem issues and close out on-prem resolution. Complete hybrid documentation updates."],
+          ["Adaptive Authentication", "Continue development and execution of adaptive authentication use cases within the lab environment. Expand conditional access policy testing, validate additional authentication scenarios, and continue development of POC findings and recommendations."],
+          ["Elevated Access", "Complete current-state assessment activities, finalize current state assessment and gaps, refine scope, architecture diagrams, and implementation considerations based on stakeholder feedback, and start working on future-state architecture development."],
+          ["YubiKey", "No planned activities. Project closed."],
+          ["PIV-I for VPN", "No planned activities. Project closed."],
+          ["EA As-Is", "Continue refinement of EA As-Is dashboards via coordination with the OTIS team to build a JSON REST API to receive daily refresh of VM metadata, replacing manual CSV extracts. Complete refinement of TRM lifecycle governance and develop a presentation to share TRM governance flow expectations."]
+        ],
+        staffing: [["Service Delivery","Muhammad Nazir","5/22/2023","System Integration Engineer"],["Service Delivery","Sunil Bandapally","7/10/2023","Systems Integration Engineer"],["Service Delivery","Narayan Verma","7/17/2023","Systems Integration Engineer"],["Service Delivery","Sangameswar Gupta","6/17/2024","Systems Integration Engineer"],["Service Delivery","Lauryn Holcomb","8/7/2023","Project Manager"],["Service Delivery","Karaman Talibov","1/20/2026","Systems Integration Engineer"]],
+        issues: [
+          "WHfB: Ongoing Microsoft support coordination for on-premises Certificate Trust authentication failures continues to delay completion of validation activities. Resolution: continued escalation with Microsoft engineering teams, submission of additional diagnostic logs, and parallel internal troubleshooting to isolate root cause.",
+          "MFA Support: Login.gov onboarding and support activities continue to require recurring coordination across multiple application teams, creating competing priorities for project resources. Resolution: continued use of recurring working sessions, centralized documentation, and coordinated stakeholder engagement."
+        ],
+        risks: [
+          "WHfB: Continued dependency on Microsoft engineering support and supporting infrastructure components (ADFS, Certificate Services, Entra ID) may impact project timeline and final validation activities. Mitigation: maintain escalation pathways, continue recurring support engagements, and pursue parallel validation and documentation activities.",
+          "MFA Support: Ongoing support demands, vulnerability remediation, and application onboarding efforts may compete with project execution timelines across the MFA portfolio. Mitigation: continue centralized tracking and prioritization through JIRA dashboards, recurring coordination meetings, and workload management processes.",
+          "EA As-Is (1): Organizational restructuring and evolving governance responsibilities may create ambiguity around ownership of business capabilities, application stewardship, and technology domains. Mitigation: continue development and enforcement of the EA governance model, RACI matrix, and Architecture Review Board processes.",
+          "EA As-Is (2): Application, infrastructure, and technology data may remain fragmented or inconsistent across CSAM, CMDB, OTIS, Dynatrace, and program office inventories, impacting the accuracy of the enterprise architecture baseline. Mitigation: establish a centralized authoritative EA repository and continue phased data normalization and validation."
+        ],
+        travel: "N/A"
+      },
+      "Call 13.1": {
+        title: "Call Order 013 – DevSecOps",
+        funding: [["Funds Obligated", 1425043.20], ["Funds Expended to Date", 744032.29], ["Funds Remaining", 681010.91], ["Estimate at Completion", 1417469.17], ["Over/Under", 7574.03]],
+        completed: [
+          ["", "Investigated implementation approaches for OpenTelemetry, Kubernetes RBAC, VMware Infrastructure as Code (IaC), and internal certificate auto-renewal to provide recommendations that support improved observability, least-privilege access, infrastructure automation, and certificate lifecycle management."],
+          ["", "Strengthened the security posture of platform components by cleaning up Log4j and OpenJDK 21 vulnerabilities in custom images, updating the Selenium Hub Java base image, and addressing critical Containerd vulnerabilities identified in the Splunk report."],
+          ["", "Advanced DevSecOps automation by configuring a Git event-based deployment pipeline and integrating SonarQube, Fortify, and Black Duck with the InfoWeb chat application, enabling automated deployments and improved application security scanning."],
+          ["", "Developed an assessment form based on identified requirements, reviewed it with the Product Owner and stakeholders, and incorporated feedback to improve the quality and readiness of the assessment before distribution."],
+          ["", "Investigated and documented approaches for managing existing and new VMware virtual machines using Infrastructure as Code, providing implementation guidance, best practices, and reusable patterns."]
+        ],
+        planned: [
+          ["", "Complete the evaluation of container/Dockerfile vulnerability scanning tools and implement Cosign digital signing in the CI/CD pipeline to strengthen container security and software supply chain integrity."],
+          ["", "Create a Kubernetes Dashboard UI, externalize Helm values into environment-specific ArgoCD configurations, and implement branch/tag-based environment promotion logic."],
+          ["", "Upgrade Fortify from version 21 to version 26, including preparing the licensed Docker image and publishing it to Artifactory, to restore vendor support and maintain secure code scanning."],
+          ["", "Continue reviewing the assessment form with stakeholders, investigate Developer Portal support for VM applications, and test Selenium Hub when a stable OpenJDK version is available."],
+          ["", "Remediate the OpenSSL vulnerability on the PostgreSQL server and sandbox cluster by updating the affected RHEL packages."]
+        ],
+        staffing: [["Service Delivery","Vijay Sivaprakasam","9/30/2024","Systems Integration Engineer"],["Service Delivery","Harsh Jain","11/25/2024","Systems Integration Engineer"],["Service Delivery","Madhur Gupta","4/16/2025","Business Analyst"],["Service Delivery","Shailendra Gohil","3/22/2024","Systems Integration Engineer"],["Service Delivery","Olusola Awoderu","12/26/2023","Software Engineer"],["Service Delivery","Mohana Molabanti","8/28/2023","Cloud Architect"]],
+        issues: [], risks: [], travel: "N/A"
+      },
+      "Call 15.1": {
+        title: "Call Order 015 – Innovation & Research",
+        funding: [["Funds Obligated", 1853995.87], ["Funds Expended to Date", 744603.44], ["Funds Remaining", 1109392.43], ["Estimate at Completion", 1378035.44], ["Over/Under", 475960.43]],
+        completed: [
+          ["", "Continued deploying the JEFS internal site to Azure Kubernetes Service as proof of concept and cloud cost evaluation."],
+          ["", "Continued development of the InfoWeb Support Guide Chatbot, focusing on usability and integration with existing documentation."],
+          ["", "Completed development assistance of the ARC Hub, expanding semantic search and summarization capabilities."],
+          ["", "Completed development assistance of the CVB solution, progressing structured data extraction capabilities."],
+          ["", "Completed development assistance of the cross-cloud PDF text extraction capability toward broader applicability across use cases."],
+          ["", "Continued refinement of Courtney and the Online Judicial Guide in alignment with AO priorities."],
+          ["", "Continued working with AO leadership to define and formalize the operating model, ensuring clear direction and execution alignment."],
+          ["", "Completed moving current and existing POCs to OpenShift."],
+          ["", "Continued assessing and creating automated testing procedures for LLM projects."],
+          ["", "Started creating a testing suite of applications and questions for the Judiciary Guide using Garak and DeepEval."]
+        ],
+        planned: [
+          ["", "Continue deploying the JEFS internal site to Azure Kubernetes Service as proof of concept and cloud cost evaluation."],
+          ["", "Continue development of the InfoWeb Support Guide Chatbot, focusing on usability and integration with existing documentation."],
+          ["", "Continue refinement of the Online Judicial Guide in alignment with AO priorities."],
+          ["", "Continue working with AO leadership to define and formalize the operating model."],
+          ["", "Continue creating a testing suite of applications and questions for the Judiciary Guide using Garak and DeepEval."],
+          ["", "Continue assessing and creating automated testing procedures for LLM projects."]
+        ],
+        staffing: [["Service Delivery","Kenneth Megill","10/7/2024","Business Analyst - Senior"],["Service Delivery","Louden Motina","4/1/2025","Enterprise Architect"],["Service Delivery","Jason De Kock","10/7/2024","Systems Integration Engineer"],["Service Delivery","Louie Chen","11/12/2024","AI Engineer"],["Service Delivery","Syed Abbas","8/11/2025","Information Assurance Engineer"],["Service Delivery","Dhruvi Rathod","8/14/2025","Information Assurance Engineer"]],
+        issues: ["Operating model and decision alignment across AO and TechSur remain in definition as part of the ongoing leadership transition. Resolution: continue regular engagement with TechSur and AO leadership on a shared operating model that defines direction, decision-making, and execution expectations."],
+        risks: ["TSO cloud capabilities are still maturing and may not yet fully support all targeted innovation use cases. Mitigation: continue aligning development efforts to currently available TSO services while informing a multi-cloud strategy."],
+        travel: "N/A"
+      },
+      "Call 16.1": {
+        title: "Call Order 016 – RAE Support",
+        funding: [["Funds Obligated", 3383404.80], ["Funds Expended to Date", 533577.96], ["Funds Remaining", 2849826.84], ["Estimate at Completion", 3260861.72], ["Over/Under", 122543.08]],
+        completed: [
+          ["Project Management & PMO Support", "Provided PMO support to TSIO, including PM process improvement workshops, contract deliverable verification, project inventory assessment, and ongoing PM guidance. Continued PM support for the Sealed Document Security (SDS) Project. Provided PM support for the ETSD AI Strategy Initiative, AI Gateway, and Courtroom Technology. Began onboarding new Agile Coach resource, Ram Dasari."],
+          ["Governance, Security & Vulnerability Management", "Conducted daily monitoring and analysis of vulnerability reports and tracked remediation of critical and high-risk findings. Eliminated false-positive vulnerability plugin IDs from Splunk reporting. Coordinated installation of missing Nessus agents. Partnered with DevSecOps and Development teams to remediate JDK vulnerabilities. Addressed asset inventory discrepancies including CSAM ID corrections and CMDB updates. Developed and refined Vulnerability Management Policy and SOP documentation. Delivered Azure Minimum Controls guidance and completed JSIF/Azure control mapping."],
+          ["DevSecOps & Automation", "Implemented Git event-based deployment pipelines supporting automated deployments across Development, Staging, and Production. Established deployment workflows aligned with organizational branching and release management strategies. Completed Infrastructure as Code assessment for VMware environments, including Terraform and Ansible implementation guidance. Researched automated internal certificate renewal processes."],
+          ["Cloud & Platform Support", "Continued support for TSO and COO teams with cloud development activities and access control management."],
+          ["Courtroom Technology Support", "Supported FY25 Judiciary-wide data collection analysis and reporting. Assisted with AVoIP courtroom design reviews and stakeholder engagement. Supported development and maintenance of Courtroom Technology SharePoint sites. Participated in the Courtroom Technology Conference and continued administration of the Judiciary's AVIXA membership program."]
+        ],
+        planned: [
+          ["Project Management & PMO Support", "Continue PMO support for TSIO, including project process improvements and Jira process alignment. Continue PM support for the ETSD AI Strategy initiative, AI Portal Project, and Courtroom Technology."],
+          ["Security & Vulnerability Management", "Monitor Nessus agent deployment status and coordinate remediation of remaining gaps. Continue tracking and driving remediation of critical, high, and aging vulnerabilities. Enhance Splunk reporting and validate new asset dashboard data. Continue vulnerability trend analysis, POA&M tracking, and documentation development. Support Azure Landing Zone planning."],
+          ["DevSecOps & Automation", "Evaluate Dockerfile security scanning tools and recommend a standardized enterprise solution. Implement Cosign for container image signing within CI/CD pipelines. Document container security scanning processes. Expand CI/CD deployment capabilities across OpenShift, Azure, and AWS, and validate multi-cloud deployment workflows."],
+          ["Cloud & Platform Support", "Continue supporting TSO and COO teams with cloud development, platform administration, and access management activities."],
+          ["Courtroom Technology Support", "Continue FY25 data analysis and preparation of Judiciary-wide reporting deliverables. Support completion of AVoIP courtroom design reviews and comment resolution. Continue development of Courtroom Technology SharePoint sites. Continue administration and support of the Judiciary's AVIXA program."],
+          ["Enterprise Architecture (support for Call Order 002)", "See Call Order 002."],
+          ["Service Delivery (support for Call Order 013)", "See Call Order 013."]
+        ],
+        staffing: [["Business Ops","Paul Schomburg","9/15/2024","Agile Coach/Consultant — CO 16"],["Business Ops","Parag Matalia","8/12/2024","Agile Consultant — CO 16"],["Business Ops","Ram Dasari","6/29/2026","Agile Consultant — CO 16"],["Business Ops","Jessica Murphy","9/19/2022","Admin Support Specialist — CO 16"],["Business Ops","Andrew Camp","7/1/2023","Project Manager — CO 16"],["Business Ops","Darren Boykin","7/28/2025","Information Systems Eng — CO 16"],["Business Ops","Dora Mensah","5/12/2025","Cyber Threat Analyst — CO 16"],["Business Ops","Benjamin Eseku","5/19/2025","Cyber Threat Analyst — CO 16"],["Business Ops","Pat Shubird","10/1/2025","Systems Engineer — CO 16"],["Business Ops","Prathyusha Gaddam","10/14/2025","Information Systems Eng — CO 16"],["Service Delivery","Joseph Lee","9/26/2022","Systems Engineer — CO 16"],["Service Delivery","Hao Ray Duong","2/20/2024","Cloud Architect — CO 16"],["Business Ops","Pankaj Shishodia","6/9/2025","Agile Coach — CO 16"],["Enterprise Arch","Shamroze Niazi","9/26/2022","Enterprise Architect — CO 02"],["Enterprise Arch","Deloy Johnson","2/26/2023","Systems Engineer — CO 02"],["Service Delivery","Nick Sundar","12/4/2023","Enterprise Architect — CO 13"]],
+        issues: [], risks: [], travel: "N/A"
+      },
+      "Call 17": {
+        title: "Call Order 017 – Enterprise IT Project Management",
+        funding: [["Funds Obligated", 1681420.80], ["Funds Expended to Date", 967686.39], ["Funds Remaining", 713734.41], ["Estimate at Completion", 1611599.59], ["Over/Under", 69821.21]],
+        completed: [
+          ["", "Published the June edition of The Agile Pulse Newsletter, continuing regular communications to promote Agile awareness across the AO."],
+          ["", "Conducted design sessions to define Level 1 of the enterprise Agile training curriculum, establishing the foundation for standardized learning pathways."],
+          ["", "Demonstrated the Learning Hub SharePoint site to the EPMB Branch Chief, highlighting a centralized platform for training materials and resource access."],
+          ["", "Facilitated FY26 Q4 CIO IT Major Project Review presentation training sessions and initiated pre-brief sessions with Program and Project Managers."],
+          ["", "Advanced the ITPM Framework draft for CIO and Chief of Staff review."],
+          ["", "Prepared a draft of the Judiciary Guidelines for Implementing Agile Projects for EPMB Chief review, aligned with the PMBOK v8 framework."],
+          ["", "Developed a draft Project Charter Template and accompanying Instruction Guide to support standardized project initiation practices."],
+          ["", "Continued standardization of EPMB project management templates and tools, reducing duplication and improving consistency."],
+          ["", "Completed FY26 EPMB Q4 planning, including strategic priorities, timeline alignment, resource coordination, and accountability measures."],
+          ["", "Refined the Program and Project Management Community of Practice (CoP) Establishment Outline in preparation for leadership review."]
+        ],
+        planned: [
+          ["", "Continue development and refinement of the enterprise Agile training curriculum and define subsequent training levels and learning pathways."],
+          ["", "Incorporate leadership feedback and advance the Learning Hub SharePoint site toward broader implementation and adoption."],
+          ["", "Complete pre-brief sessions and provide ongoing support for FY26 Q4 CIO IT Major Project Reviews."],
+          ["", "Facilitate review cycles and incorporate stakeholder feedback into the ITPM Framework for finalization."],
+          ["", "Advance the Judiciary Guidelines for Implementing Agile Projects through leadership review and comment resolution."],
+          ["", "Finalize and socialize the Project Charter Template and Instruction Guide for broader EPMB adoption."],
+          ["", "Continue consolidation and standardization of EPMB project management templates, tools, and artifacts."],
+          ["", "Execute the FY26 Q4 work plan and monitor progress against established priorities and milestones."],
+          ["", "Present the Program and Project Management Community of Practice outline to EPMB and EPSD leadership."],
+          ["", "Prepare and publish the July edition of The Agile Pulse Newsletter."]
+        ],
+        staffing: [["Portfolio Mngt","Taiwo Adenuga","8/5/2024","Project Manager"],["Portfolio Mngt","Patti April","10/28/2024","Senior Agile Consultant"],["Portfolio Mngt","Bob Carpenter","3/27/2023","Agile Coach"],["Portfolio Mngt","Natalee Savage","7/24/2023","Agile Coach"],["Portfolio Mngt","Amir Bawani","1/13/2025","Agile Coach"],["Portfolio Mngt","Dipika Jain","11/1/2023","Agile Coach"],["Portfolio Mngt","Samrah Kashif","2/17/2026","Senior Agile Consultant"],["Portfolio Mngt","James Rader","9/23/2024","Senior Agile Consultant"]],
+        issues: [], risks: [], travel: "N/A"
+      },
+      "Call 18": {
+        title: "Call Order 018 – Zero Trust Architecture",
+        funding: [["Funds Obligated", 2000000.00], ["Funds Expended to Date", 953984.81], ["Funds Remaining", 1046015.19], ["Estimate at Completion", 1897591.29], ["Over/Under", 102408.71]],
+        completed: [
+          ["", "Completed the structured analysis of interview data for Group 3, expanding As-Is documentation, deepening the Gap Analysis, and refining the list of Zero Trust initiatives for the Application and Workload, Data, and Automation and Orchestration pillars, as well as the cross-cutting capabilities for Visibility and Analytics. Completed cost-benefit scoring and prioritization, enabling data-driven recommendations that inform the Zero Trust Architecture, Roadmap, and Policy deliverables."],
+          ["", "Continued maturing the Zero Trust Roadmap Document, working closely with government partners to refine structure, visuals, and content for the separate volumes on the Devices and Network pillars. Incorporated feedback from TSIO members, other SMEs, and the CIOWG."],
+          ["", "Completed the second incremental delivery of the working draft of policies and standards scoped to the Devices and Network pillars, including recommendations for Judicial policy, AO manual, standards, and SOPs."],
+          ["", "Expanded the Zero Trust Architecture SharePoint site, strengthening the program's communications and change-management capability by incrementally adding content."]
+        ],
+        planned: [
+          ["", "Incorporate feedback for the analysis documents, completing the As-Is documentation, the Gap Analysis, and the list of Zero Trust initiatives for the Application and Workload, Data, Visibility and Analytics, and Automation and Orchestration pillars."],
+          ["", "Deliver the final incremental version of the Zero Trust Roadmap Document for government review, including the main document, all five CISA ZTMM pillars, and the two cross-cutting capabilities."],
+          ["", "Deliver the third incremental working draft of policies and standards scoped to the Data and Application and Workload pillars."],
+          ["", "Deliver final versions of the RACI, Change Management Plan, and Risk Register for government review."],
+          ["", "Continue to expand the Zero Trust Architecture SharePoint site."]
+        ],
+        staffing: [["Service Delivery","Shawn Faunce","10/6/2025","Agile Coach / Consultant"],["Service Delivery","Nat Iyer","10/14/2025","Cloud Architect"],["Service Delivery","David Prompovitch","10/14/2025","Data Scientist"],["Service Delivery","Mary Raguso","10/8/2025","Information Systems Engineer"],["Service Delivery","Megan Giesy","10/8/2025","Agile Coach / Consultant"],["Service Delivery","Tapan Rath","12/29/2025","Cloud Architect"],["Service Delivery","GyVonda McCain","2/9/2026","Systems Integration Engineer"]],
+        issues: [], risks: [], travel: "N/A"
+      }
+    }
+  }
+];
+
+function usd(n) {
+  if (n === null || n === undefined) return "N/A";
+  if (Math.abs(n) >= 1000000) return "$" + (n / 1000000).toFixed(2) + "M";
+  if (Math.abs(n) >= 1000) return "$" + Math.round(n / 1000).toLocaleString() + "K";
+  return "$" + n.toFixed(0);
+}
+function usdFull(n) {
+  if (n === null || n === undefined) return "N/A";
+  return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+const isVacant = s => /^VACANT/i.test(s);
+const isDeparted = status => /offboarded|no longer available/i.test(status || "");
+const STATUS_OPTIONS = ["Assigned", "Vacant", "On leave", "PIV pending", "Onboarding", "Recruiting", "Offboarded", "No longer available"];
+const DEFAULT_STAMPS = { fin: "Aug 31, 2026", people: "Sep 2, 2026" };
+const TODAY = new Date("2026-09-03T12:00:00");
+function today() { return TODAY.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
+const YELLOW = "oklch(0.72 0.15 78)";
+const RED = "oklch(0.55 0.2 27)";
+const FIN_VAL = "text-align: right; font-variant-numeric: tabular-nums; font-weight: 500;";
+function burnColor(pct) { return pct >= 86 ? RED : pct >= 75 ? YELLOW : ACCENT; }
+function parsePop(pop) {
+  const m = String(pop || "").split(/\s*[–-]\s*/);
+  const p = t => {
+    const x = String(t || "").match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+    if (!x) return null;
+    const y = +x[3] < 100 ? 2000 + +x[3] : +x[3];
+    return new Date(y, +x[1] - 1, +x[2]);
+  };
+  return { start: p(m[0]), end: p(m[1]) };
+}
+function periodState(c) {
+  const { start, end } = parsePop(c.pop);
+  if (!start || !end) return "current";
+  if (TODAY < start) return "upcoming";
+  if (TODAY > end) return "prior";
+  return "current";
+}
+function daysOld(stamp) {
+  const d = Date.parse(stamp);
+  return isNaN(d) ? 0 : Math.round((TODAY - d) / 86400000);
+}
+
+class Component extends DCLogic {
+  state = { page: "orders", selected: null, tab: null, extra: {}, added: [], msrAdded: [], msrKey: null, msrCall: null, report: null };
+  fileInput = React.createRef();
+  coInput = React.createRef();
+  msrInput = React.createRef();
+
+  allOrders() { return this.state.added.concat(DATA); }
+
+  staffOf(c) { return (this.state.staffEdits || {})[c.id] || c.staff; }
+  spendOf(c) { const e = (this.state.spendEdits || {})[c.id]; return e === undefined ? c.spend : e; }
+  stamp(c, key) { return ((this.state.stamps || {})[c.id] || {})[key] || DEFAULT_STAMPS[key]; }
+  touch(c, key) {
+    this.setState(s => ({
+      stamps: Object.assign({}, s.stamps, { [c.id]: Object.assign({}, (s.stamps || {})[c.id], { [key]: today() }) })
+    }));
+  }
+  stampStyle(stamp) {
+    const old = daysOld(stamp);
+    return "font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: " + (old > 7 ? WARN : "#8b9299") + ";";
+  }
+
+  navStyle(active) {
+    return "padding: 9px 14px; font-size: 13px; cursor: pointer; border-bottom: 2px solid " +
+      (active ? ACCENT : "transparent") + "; color: " + (active ? "#1b1e21" : "#6c757d") +
+      "; font-weight: " + (active ? 600 : 400) + ";";
+  }
+  tabStyle(active) {
+    return "padding: 10px 16px; font-size: 13px; cursor: pointer; border-bottom: 2px solid " +
+      (active ? ACCENT : "transparent") + "; color: " + (active ? "#1b1e21" : "#6c757d") +
+      "; font-weight: " + (active ? 600 : 400) + ";";
+  }
+  rowStyle(cols, active) {
+    return "display: grid; grid-template-columns: " + cols + "; gap: 14px; padding: 12px 20px; border-bottom: 1px solid #eef0f2; font-size: 13px; align-items: center; cursor: pointer; background: " + (active ? "#f4f7fa" : "transparent") + ";";
+  }
+  sortOf(key, def) { return ((this.state.sort || {})[key]) || { col: def, dir: "asc" }; }
+
+  headers(key, def, cols) {
+    const cur = this.sortOf(key, def), out = {};
+    cols.forEach(c => {
+      const active = cur.col === c.key;
+      out[c.key] = {
+        label: c.label + (active ? (cur.dir === "asc" ? " \u2191" : " \u2193") : ""),
+        style: "font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; color: "
+          + (active ? ACCENT : "#8b9299") + ";" + (c.align === "right" ? " text-align: right;" : ""),
+        click: () => this.setState(s => ({
+          sort: Object.assign({}, s.sort, { [key]: { col: c.key, dir: active && cur.dir === "asc" ? "desc" : "asc" } })
+        }))
+      };
+    });
+    return out;
+  }
+
+  sortRows(key, def, rows, getters) {
+    const cur = this.sortOf(key, def), g = getters[cur.col];
+    if (!g) return rows;
+    const out = rows.slice().sort((a, b) => {
+      const x = g(a), y = g(b);
+      if (typeof x === "number" && typeof y === "number") return x - y;
+      return String(x).localeCompare(String(y), undefined, { numeric: true });
+    });
+    return cur.dir === "desc" ? out.reverse() : out;
+  }
+
+  pillStyle(active) {
+    return "padding: 5px 12px; border-radius: 2px; font-size: 12px; cursor: pointer; border: 1px solid " +
+      (active ? ACCENT : "#d6dade") + "; color: " + (active ? "#fff" : "#6c757d") +
+      "; background: " + (active ? ACCENT : "#fff") + "; font-weight: 500;";
+  }
+
+  field(v, h) { return { value: v || "", onChange: e => this.setState({ wf: Object.assign({}, this.state.wf, h(e.target.value)) }) }; }
+
+  btn(primary) {
+    return "padding: 8px 15px; border-radius: 3px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; border: 1px solid " +
+      (primary ? ACCENT : "#c8ced3") + "; background: " + (primary ? ACCENT : "#fff") + "; color: " + (primary ? "#fff" : "#1b1e21") + ";";
+  }
+
+  railStyle(active) {
+    return "padding: 9px 16px; cursor: pointer; border-left: 2px solid " + (active ? ACCENT : "transparent") +
+      "; background: " + (active ? "#eef3f7" : "transparent") + ";";
+  }
+
+  renderVals() {
+    const all = this.allOrders();
+    const filled = c => this.staffOf(c).filter(s => !isVacant(s[0]) && !isDeparted(s[3])).length;
+    const onOrders = this.state.page === "orders";
+    const isPm = this.state.role === "pm";
+    const groups = [];
+    all.forEach(c => {
+      const gk = c.group || c.id;
+      let g = groups.find(x => x.key === gk);
+      if (!g) { g = { key: gk, name: c.groupName || c.name, periods: [] }; groups.push(g); }
+      g.periods.push(c);
+    });
+    groups.forEach(g => {
+      g.current = g.periods.find(p => periodState(p) === "current")
+        || g.periods.filter(p => periodState(p) === "prior").slice(-1)[0] || g.periods[0];
+    });
+    const list = this.sortRows("reg", "co", groups, {
+      co: g => g.key,
+      pop: g => { const p = parsePop(g.current.pop).start; return p ? p.getTime() : 0; },
+      people: g => filled(g.current),
+      funded: g => g.current.funded,
+      spend: g => this.spendOf(g.current),
+      updated: g => Date.parse(this.stamp(g.current, "fin")) || 0
+    });
+
+    const vals = {
+      isList: onOrders && !this.state.selected,
+      isDetail: onOrders && !!this.state.selected,
+      isMsr: this.state.page === "msr",
+      navOrders: this.navStyle(onOrders),
+      navMsr: this.navStyle(this.state.page === "msr"),
+      goOrders: () => this.setState({ page: "orders" }),
+      goMsr: () => this.setState({ page: "msr" }),
+      isPm: isPm,
+      isCustomer: !isPm,
+      hReg: this.headers("reg", "co", [
+        { key: "co", label: "Call order" }, { key: "pop", label: "Period of performance" },
+        { key: "people", label: "People", align: "right" }, { key: "funded", label: "Funded", align: "right" },
+        { key: "spend", label: "Actual spend", align: "right" }, { key: "updated", label: "Last updated", align: "right" }
+      ]),
+      staffCols: "display: grid; grid-template-columns: " + (isPm ? "1.5fr 1.5fr 0.7fr 1fr 0.5fr" : "1.6fr 1.6fr 0.8fr 0.8fr") + "; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #eef0f2; font-size: 13px; align-items: center;",
+      staffHeadCols: "display: grid; grid-template-columns: " + (isPm ? "1.5fr 1.5fr 0.7fr 1fr 0.5fr" : "1.6fr 1.6fr 0.8fr 0.8fr") + "; gap: 16px; padding: 10px 20px; background: #fafbfb; border-bottom: 1px solid #e2e5e8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #8b9299;",
+      roleCustomer: this.pillStyle(!isPm),
+      rolePm: this.pillStyle(isPm),
+      setCustomer: () => this.setState({ role: "customer" }),
+      setPm: () => this.setState({ role: "pm" }),
+      totalFunded: usd(all.reduce((s, c) => s + c.funded, 0)),
+      totalSpend: usd(all.reduce((s, c) => s + this.spendOf(c), 0)),
+      summary: groups.length + " call orders · " + all.length + " funded periods · " + all.reduce((s, c) => s + filled(c), 0) + " personnel assigned · " + all.reduce((s, c) => s + this.staffOf(c).filter(x => isVacant(x[0])).length, 0) + " open positions",
+      back: () => this.setState({ selected: null }),
+      coRef: this.coInput,
+      pickCallOrder: () => this.coInput.current && this.coInput.current.click(),
+      onCallOrderFile: (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        const items = files.map((f, i) => ({
+          id: "New " + (this.state.added.length + i + 1),
+          name: f.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " "),
+          pop: "To be entered", funded: 0, spend: 0, remaining: 0, eac: null, over: null,
+          pm: "Unassigned", lcats: [], staff: [], pending: true,
+          highlights: ["Uploaded from " + f.name + ". Funding, staffing, and period of performance pending setup."]
+        }));
+        e.target.value = "";
+        this.setState(s => ({ added: items.concat(s.added) }));
+      },
+      rows: list.map(g => {
+        const c = g.current;
+        const spend = this.spendOf(c);
+        const pct = c.funded ? Math.round((spend / c.funded) * 100) : 0;
+        const oldest = [this.stamp(c, "fin"), this.stamp(c, "people")].sort((a, b) => daysOld(b) - daysOld(a))[0];
+        const open = tab => e => {
+          if (e && e.stopPropagation) e.stopPropagation();
+          this.setState({ selected: c.id, tab: tab, spendDraft: undefined, ns: {} });
+        };
+        return {
+          id: c.pending ? g.key + " · pending setup"
+            : g.periods.length > 1 ? g.key + " · " + c.id + " · " + g.periods.length + " periods" : g.key + " · " + c.id,
+          name: g.name, pop: c.pop,
+          people: this.staffOf(c).length ? filled(c) : "—",
+          funded: c.funded ? usd(c.funded) : "—",
+          spend: c.funded ? usd(spend) : "—",
+          updated: oldest,
+          updatedStyle: this.stampStyle(oldest) + "text-align: right;",
+          pct: c.funded ? (spend ? pct + "% expended" : "not yet started") : "awaiting funding data",
+          pctStyle: "font-family: 'IBM Plex Mono', monospace; font-size: 10px; margin-top: 4px; color: " + (c.funded && spend ? burnColor(pct) : "#8b9299") + ";",
+          peopleStyle: "font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; color: " + ACCENT + "; cursor: pointer; text-decoration: underline; text-decoration-color: #c8ced3; text-underline-offset: 3px;",
+          barStyle: "height: 100%; border-radius: 2px; background: " + burnColor(pct) + "; width: " + Math.min(pct, 100) + "%;",
+          openPeople: open("People"),
+          open: open("Financials")
+        };
+      })
+    };
+
+    if (this.state.page === "msr") {
+      const reports = this.state.msrAdded.concat(MONTHLY_REPORTS);
+      const key = reports.some(r => r.key === this.state.msrKey) ? this.state.msrKey : reports[0].key;
+      const rep = reports.find(r => r.key === key);
+      const edits = (this.state.msrEdits || {})[key] || {};
+      const base = rep.sections || {};
+      const sectionFor = id => edits[id] || base[id] || null;
+      const ids = DATA.map(c => c.id);
+      const secId = ids.includes(this.state.msrCall) ? this.state.msrCall : ids[0];
+      const sec = sectionFor(secId);
+      const co = DATA.find(c => c.id === secId);
+      const sf = this.state.sf || {};
+      const sfField = k => ({ value: sf[k] === undefined ? "" : sf[k], onChange: e => this.setState({ sf: Object.assign({}, this.state.sf, { [k]: e.target.value }) }) });
+      const num = v => { const n = parseFloat(String(v).replace(/[^0-9.\-]/g, "")); return isNaN(n) ? null : n; };
+      const lines = t => String(t || "").split("\n").map(x => x.trim()).filter(Boolean);
+      const fromEntries = arr => (arr || []).map(e => (e[0] ? e[0] + ": " : "") + e[1]).join("\n");
+      const toEntries = t => lines(t).map(l => {
+        const m = l.match(/^([^:]{3,60}):\s+(.*)$/);
+        return m ? [m[1], m[2]] : ["", l];
+      });
+
+      return Object.assign(vals, {
+        msrRef: this.msrInput,
+        pickMsrFile: () => this.msrInput.current && this.msrInput.current.click(),
+        onMsrFile: (e) => {
+          const files = Array.from(e.target.files || []);
+          if (!files.length) return;
+          const today = new Date();
+          const items = files.map((f, i) => ({
+            key: "msr-up-" + Date.now() + "-" + i,
+            period: today.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+            file: f.name, by: "Program Office", due: "—", status: "Uploaded", href: "#", sections: null
+          }));
+          e.target.value = "";
+          this.setState(s => ({ msrKey: items[0].key, msrAdded: items.concat(s.msrAdded) }));
+        },
+        mfPeriod: {
+          value: this.state.mfPeriod || new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+          onChange: e => this.setState({ mfPeriod: e.target.value })
+        },
+        btnPrimary: this.btn(true),
+        btnPlain: this.btn(false),
+        newMsr: () => {
+          const period = this.state.mfPeriod || TODAY.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+          const item = {
+            key: "msr-blank-" + Date.now(), period: period,
+            file: "MSR " + period + " (in progress)", by: "Program Office",
+            due: "—", status: "Draft", href: "#", sections: null
+          };
+          this.setState(s => ({ msrKey: item.key, msrCall: null, msrAdded: [item].concat(s.msrAdded) }));
+        },
+        createMsr: () => {
+          const period = this.state.mfPeriod || new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
+          const secs = {};
+          DATA.forEach(c => {
+            const weeklies = (this.state.extra[c.id] || []).filter(r => r.created);
+            const pull = label => weeklies.map(r => {
+              const g = (r.groups || []).find(x => x.label === label);
+              return g && g.items.length && g.items[0] !== "N/A"
+                ? ["Week ending " + r.week, g.items.join("; ")] : null;
+            }).filter(Boolean);
+            const flat = label => weeklies.reduce((acc, r) => {
+              const g = (r.groups || []).find(x => x.label === label);
+              return g ? acc.concat(g.items.filter(i => i !== "N/A")) : acc;
+            }, []);
+            secs[c.id] = {
+              funding: [["Funds Obligated", c.funded], ["Funds Expended to Date", c.spend], ["Funds Remaining", c.remaining], ["Estimate at Completion", c.eac], ["Over/Under", c.over]],
+              completed: pull("Accomplishments this week"),
+              planned: pull("Planned activities next week"),
+              risks: flat("Risks"), issues: flat("Issues"), travel: "N/A",
+              drafted: true
+            };
+          });
+          const item = {
+            key: "msr-new-" + Date.now(), period: period,
+            file: "MSR " + period + " (drafted in portal)", by: "Program Office",
+            due: "—", status: "Draft", href: "#", sections: secs
+          };
+          this.setState(s => ({ msrKey: item.key, msrAdded: [item].concat(s.msrAdded) }));
+        },
+        hMsr: this.headers("msr", "period", [
+          { key: "period", label: "Reporting period" }, { key: "file", label: "File" },
+          { key: "by", label: "Submitted by" }, { key: "due", label: "Due" },
+          { key: "status", label: "Status", align: "right" }
+        ]),
+        hMsrStaff: this.headers("msrstaff", "name", [
+          { key: "division", label: "Division" }, { key: "name", label: "Staff" },
+          { key: "start", label: "Start date" }, { key: "lcat", label: "TSO LCAT" }
+        ]),
+        msrList: this.sortRows("msr", "period", reports, {
+          period: r => Date.parse("1 " + r.period) || Date.parse(r.period) || 0,
+          file: r => r.file, by: r => r.by, due: r => Date.parse(r.due) || 0, status: r => r.status
+        }).map(r => Object.assign({}, r, {
+          rowStyle: this.rowStyle("1fr 2fr 1fr 0.9fr 0.9fr", r.key === key),
+          select: () => this.setState({ msrKey: r.key })
+        })),
+        msrTitle: "Monthly Status Report — " + rep.period,
+        msrSub: rep.file + " · " + (rep.scope || "reporting period " + rep.period) + " · submitted by " + rep.by + " · " + rep.status,
+        msrHref: rep.href,
+        msrShowSource: !!(rep.href && rep.href !== "#"),
+        msrHasSections: !!(rep.sections || Object.keys(edits).length || isPm),
+        msrPending: !rep.sections && !Object.keys(edits).length && !isPm,
+        msrPendingMsg: "Uploaded. Call order sections are extracted from the document once processed.",
+        msrSections: ids.map(id => {
+          const o = DATA.find(c => c.id === id);
+          const has = !!sectionFor(id);
+          return {
+            id: id, label: has ? o.name : "No section yet",
+            style: this.railStyle(id === secId) + (has ? "" : "opacity: 0.55;"),
+            select: () => this.setState({ msrCall: id, sfOpen: null })
+          };
+        }),
+        sfOpen: this.state.sfOpen === secId,
+        openSf: () => this.setState({
+          sfOpen: secId,
+          sf: {
+            obligated: sec ? String(sec.funding[0][1]) : String(co.funded),
+            expended: sec ? String(sec.funding[1][1]) : String(this.spendOf(co)),
+            remaining: sec ? String(sec.funding[2][1]) : String(co.funded - this.spendOf(co)),
+            eac: sec && sec.funding[3][1] !== null ? String(sec.funding[3][1]) : "",
+            over: sec && sec.funding[4][1] !== null ? String(sec.funding[4][1]) : "",
+            completed: sec ? fromEntries(sec.completed) : "",
+            planned: sec ? fromEntries(sec.planned) : "",
+            risks: sec && sec.risks ? sec.risks.join("\n") : "",
+            issues: sec && sec.issues ? sec.issues.join("\n") : "",
+            travel: sec ? sec.travel : "N/A"
+          }
+        }),
+        closeSf: () => this.setState({ sfOpen: null }),
+        sfObligated: sfField("obligated"), sfExpended: sfField("expended"), sfRemaining: sfField("remaining"),
+        sfEac: sfField("eac"), sfOver: sfField("over"), sfCompleted: sfField("completed"),
+        sfPlanned: sfField("planned"), sfRisks: sfField("risks"), sfIssues: sfField("issues"), sfTravel: sfField("travel"),
+        sfHeading: (sec ? "Edit" : "Add") + " section — " + secId,
+        sfAction: sec ? "Edit section" : "Add section for this call order",
+        saveSf: () => {
+          const next = {
+            title: co.id + " — " + co.name,
+            funding: [["Funds Obligated", num(sf.obligated)], ["Funds Expended to Date", num(sf.expended)], ["Funds Remaining", num(sf.remaining)], ["Estimate at Completion", num(sf.eac)], ["Over/Under", num(sf.over)]],
+            completed: toEntries(sf.completed), planned: toEntries(sf.planned),
+            risks: lines(sf.risks), issues: lines(sf.issues),
+            travel: sf.travel || "N/A",
+            staffing: sec ? sec.staffing : null
+          };
+          this.setState(s => ({
+            sfOpen: null,
+            msrEdits: Object.assign({}, s.msrEdits, {
+              [key]: Object.assign({}, (s.msrEdits || {})[key], { [secId]: next })
+            })
+          }));
+        },
+        secTitle: sec && sec.title ? sec.title : (co ? co.id + " — " + co.name : ""),
+        secSub: co ? co.id + " · " + co.name + " · reporting period " + rep.period : "Reporting period " + rep.period,
+        secStaff: sec && sec.staffing ? this.sortRows("msrstaff", "name", sec.staffing, {
+          division: s => s[0], name: s => s[1], start: s => Date.parse(s[2]) || 0, lcat: s => s[3]
+        }).map(s => ({ division: s[0], name: s[1], start: s[2], lcat: s[3] })) : [],
+        secHasStaff: !!(sec && sec.staffing && sec.staffing.length),
+        secHasData: !!sec,
+        secEmpty: !sec,
+        secEmptyMsg: "This call order has no section in the " + rep.period + " report."
+          + (isPm ? " Use “Add section for this call order” above to enter it." : ""),
+        secFunding: sec ? sec.funding.map(f => ({ label: f[0], value: usdFull(f[1]) })) : [],
+        secCompleted: sec ? sec.completed.map(i => ({ title: i[0], text: i[1] })) : [],
+        secPlanned: sec ? sec.planned.map(i => ({ title: i[0], text: i[1] })) : [],
+        secRisks: sec && sec.risks.length ? sec.risks : ["N/A"],
+        secIssues: sec && sec.issues.length ? sec.issues : ["N/A"],
+        secTravel: sec ? sec.travel : "N/A",
+        secNote: sec && sec.drafted && !sec.completed.length
+          ? "Drafted from portal data. No weekly status reports were submitted for this call order in this period, so the activity sections are empty."
+          : "",
+        secHasNote: !!(sec && sec.drafted && !sec.completed.length)
+      });
+    }
+
+    if (!this.state.selected) return vals;
+
+    const c = all.find(x => x.id === this.state.selected);
+    const tab = this.state.tab || "Financials";
+    const uploaded = this.state.extra[c.id] || [];
+    const spend = this.spendOf(c);
+    const staffRows = this.staffOf(c);
+    const remaining = c.funded - spend;
+    const pct = c.funded ? Math.round((spend / c.funded) * 100) : 0;
+    const lcatTotal = c.lcats.reduce((s, l) => s + l[1] * l[2] * l[3], 0);
+    const reportList = uploaded.concat(c.pending ? [] : WEEKLY_REPORTS);
+    const openKey = reportList.some(r => r.key === this.state.report) ? this.state.report : (reportList[0] && reportList[0].key);
+    const open = reportList.find(r => r.key === openKey);
+    const wf = this.state.wf || { week: "", by: "", acc: "", plan: "", risk: "", issue: "", act: "" };
+    const grp = groups.find(g => g.periods.some(p => p.id === c.id));
+
+    return Object.assign(vals, {
+      co: {
+        id: (c.group || c.id) + " · " + c.id,
+        name: c.groupName || c.name,
+        people: staffRows.length ? filled(c) : "—",
+        funded: usd(c.funded), spend: usd(spend),
+        meta: "Period of performance " + c.pop + " · " + periodState(c) + " period · PM " + c.pm
+      },
+      hasPeriods: !!(grp && grp.periods.length > 1),
+      periods: grp ? grp.periods.map(p => ({
+        label: p.id, sub: periodState(p) + " · " + p.pop,
+        style: "padding: 8px 12px; border-radius: 3px; cursor: pointer; border: 1px solid "
+          + (p.id === c.id ? ACCENT : "#e2e5e8") + "; background: " + (p.id === c.id ? "#eef3f7" : "#fff") + ";",
+        select: () => this.setState({ selected: p.id, spendDraft: undefined, ns: {} })
+      })) : [],
+      lcatGroups: (() => {
+        const byName = {};
+        c.lcats.forEach(l => {
+          byName[l[0]] = byName[l[0]] || { name: l[0], fte: 0, rate: l[3], people: [] };
+          byName[l[0]].fte += l[1];
+        });
+        const norm = t => String(t).toLowerCase().replace(/[^a-z]/g, "");
+        staffRows.forEach(s => {
+          const target = norm(s[1]);
+          const keys = Object.keys(byName);
+          const k = keys.find(n => norm(n) === target)
+            || keys.find(n => norm(n).indexOf(target) === 0 || target.indexOf(norm(n)) === 0)
+            || s[1];
+          byName[k] = byName[k] || { name: k, fte: 0, rate: s[2], people: [] };
+          byName[k].people.push({
+            name: s[0], rate: "$" + s[2].toFixed(2), status: s[3],
+            style: isVacant(s[0]) ? "font-weight: 500; color: " + WARN + ";"
+              : isDeparted(s[3]) ? "font-weight: 500; color: #9aa1a7;" : "font-weight: 500;"
+          });
+        });
+        return Object.keys(byName).sort().map(k => ({
+          name: k, fte: byName[k].fte || "—",
+          isEmpty: !byName[k].people.length,
+          assigned: byName[k].people.filter(p => !/^VACANT/i.test(p.name) && !isDeparted(p.status)).length,
+          rate: "$" + Number(byName[k].rate).toFixed(2),
+          people: byName[k].people
+        }));
+      })(),
+      finStamp: "Financials updated " + this.stamp(c, "fin"),
+      finStampStyle: this.stampStyle(this.stamp(c, "fin")),
+      peopleStamp: "Staffing updated " + this.stamp(c, "people"),
+      peopleStampStyle: this.stampStyle(this.stamp(c, "people")),
+      spendDraft: {
+        value: this.state.spendDraft === undefined ? String(spend) : this.state.spendDraft,
+        onChange: e => this.setState({ spendDraft: e.target.value })
+      },
+      saveSpend: () => {
+        const v = parseFloat(String(this.state.spendDraft).replace(/[^0-9.\-]/g, ""));
+        if (isNaN(v)) return;
+        this.setState(s => ({
+          spendEdits: Object.assign({}, s.spendEdits, { [c.id]: v }),
+          stamps: Object.assign({}, s.stamps, { [c.id]: Object.assign({}, (s.stamps || {})[c.id], { fin: today() }) })
+        }));
+      },
+      statusOptions: STATUS_OPTIONS,
+      newStaff: {
+        name: { value: (this.state.ns || {}).name || "", onChange: e => this.setState({ ns: Object.assign({}, this.state.ns, { name: e.target.value }) }) },
+        lcat: { value: (this.state.ns || {}).lcat || "", onChange: e => this.setState({ ns: Object.assign({}, this.state.ns, { lcat: e.target.value }) }) },
+        rate: { value: (this.state.ns || {}).rate || "", onChange: e => this.setState({ ns: Object.assign({}, this.state.ns, { rate: e.target.value }) }) }
+      },
+      addStaff: () => {
+        const ns = this.state.ns || {};
+        if (!ns.name) return;
+        const rows = staffRows.concat([[ns.name, ns.lcat || "—", parseFloat(ns.rate) || 0, "Onboarding"]]);
+        this.setState(s => ({
+          ns: {}, staffEdits: Object.assign({}, s.staffEdits, { [c.id]: rows }),
+          stamps: Object.assign({}, s.stamps, { [c.id]: Object.assign({}, (s.stamps || {})[c.id], { people: today() }) })
+        }));
+      },
+      onFin: tab === "Financials", onPeople: tab === "People", onReports: tab === "Weekly Status Reports",
+      tabFin: this.tabStyle(tab === "Financials"),
+      tabPeople: this.tabStyle(tab === "People"),
+      tabReports: this.tabStyle(tab === "Weekly Status Reports"),
+      goFin: () => this.setState({ tab: "Financials" }),
+      goPeople: () => this.setState({ tab: "People" }),
+      goReports: () => this.setState({ tab: "Weekly Status Reports" }),
+      funding: [
+        { label: "Funds obligated", value: usdFull(c.funded), valueStyle: FIN_VAL },
+        { label: "Funds expended to date*", value: usdFull(spend), valueStyle: FIN_VAL },
+        { label: "Funds remaining", value: usdFull(remaining), valueStyle: FIN_VAL },
+        { label: "Estimate at completion", value: usdFull(c.eac), valueStyle: FIN_VAL },
+        { label: "Over / under", value: usdFull(c.over), valueStyle: FIN_VAL },
+        { label: "Percent expended", value: c.funded ? pct + "%" : "—",
+          valueStyle: "text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: " + (c.funded && spend ? burnColor(pct) : "#1b1e21") + ";" }
+      ],
+      hLcat: this.headers("lcat", "name", [
+        { key: "name", label: "BPA labor category" }, { key: "fte", label: "FTE", align: "right" },
+        { key: "hours", label: "Hours", align: "right" }, { key: "rate", label: "Rate", align: "right" },
+        { key: "ext", label: "Extended", align: "right" }
+      ]),
+      lcats: this.sortRows("lcat", "name", c.lcats, {
+        name: l => l[0], fte: l => l[1], hours: l => l[2], rate: l => l[3], ext: l => l[1] * l[2] * l[3]
+      }).map(l => ({
+        name: l[0], fte: l[1], hours: l[2].toLocaleString(),
+        rate: "$" + l[3].toFixed(2), ext: usd(l[1] * l[2] * l[3])
+      })),
+      hStaff: this.headers("staff", "name", [
+        { key: "name", label: "Name" }, { key: "lcat", label: "Labor category" },
+        { key: "rate", label: "Rate", align: "right" }, { key: "status", label: "Status", align: "right" }
+      ]),
+      hWsr: this.headers("wsr", "week", [
+        { key: "week", label: "Week ending" }, { key: "file", label: "File" },
+        { key: "by", label: "Submitted by" }, { key: "status", label: "Status", align: "right" }
+      ]),
+      lcatFte: c.lcats.reduce((s, l) => s + l[1], 0),
+      lcatTotal: lcatTotal ? usd(lcatTotal) : "—",
+      peopleStats: [
+        { label: "Contracted FTE", value: c.lcats.reduce((s, l) => s + l[1], 0) || "—" },
+        { label: "Assigned", value: filled(c) },
+        { label: "Vacant", value: staffRows.filter(s => isVacant(s[0])).length },
+        { label: "Departed", value: staffRows.filter(s => isDeparted(s[3])).length },
+        { label: "Labor categories", value: new Set(c.lcats.map(l => l[0])).size || "—" }
+      ],
+      staff: this.sortRows("staff", "name", staffRows.map((s, i) => { const r = s.slice(); r.idx = i; return r; }), {
+        name: s => s[0], lcat: s => s[1], rate: s => s[2], status: s => s[3]
+      }).map(s => ({
+        name: s[0], lcat: s[1], rate: "$" + s[2].toFixed(2), status: s[3],
+        options: STATUS_OPTIONS.indexOf(s[3]) === -1 ? [s[3]].concat(STATUS_OPTIONS) : STATUS_OPTIONS,
+        nameStyle: isVacant(s[0]) ? "font-weight: 500; color: " + WARN + ";"
+          : isDeparted(s[3]) ? "font-weight: 500; color: #9aa1a7;" : "font-weight: 500;",
+        setStatus: e => {
+          const v = e.target.value;
+          const rows = staffRows.map((r, j) => j === s.idx ? [r[0], r[1], r[2], v] : r);
+          this.setState(st => ({
+            staffEdits: Object.assign({}, st.staffEdits, { [c.id]: rows }),
+            stamps: Object.assign({}, st.stamps, { [c.id]: Object.assign({}, (st.stamps || {})[c.id], { people: today() }) })
+          }));
+        },
+        remove: () => {
+          const rows = staffRows.filter((r, j) => j !== s.idx);
+          this.setState(st => ({
+            staffEdits: Object.assign({}, st.staffEdits, { [c.id]: rows }),
+            stamps: Object.assign({}, st.stamps, { [c.id]: Object.assign({}, (st.stamps || {})[c.id], { people: today() }) })
+          }));
+        }
+      })),
+      reports: this.sortRows("wsr", "week", reportList, {
+        week: r => Date.parse(r.week) || 0, file: r => r.file, by: r => r.by, status: r => r.status
+      }).map(r => Object.assign({}, r, {
+        rowStyle: this.rowStyle("1fr 2fr 1fr 0.8fr", r.key === openKey),
+        select: () => this.setState({ report: r.key })
+      })),
+      paneTitle: open ? (open.created ? "Weekly Status Report — week ending " + open.week : "Weekly Touchpoint — " + open.week) : "No report selected",
+      paneSub: open ? c.id + " · " + open.file + (open.by ? " · " + open.by : "") : "",
+      paneHref: open ? open.href : "#",
+      showSource: !!(open && open.href && open.href !== "#"),
+      hasWeekly: !!(open && open.status !== "Uploaded"),
+      hasPending: !open || open.status === "Uploaded",
+      pendingMsg: open ? "Uploaded. Accomplishments, risks, issues and actions are extracted from the document once processed." : "No weekly reports have been submitted for this call order.",
+      groups: open && open.created ? open.groups : [{ label: "Call order items", items: c.highlights }],
+      formOpen: this.state.wfOpen === c.id,
+      openForm: () => this.setState({
+        wfOpen: c.id,
+        wf: { week: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+              by: c.pm === "—" ? "" : c.pm, acc: "", plan: "", risk: "", issue: "", act: "" }
+      }),
+      closeForm: () => this.setState({ wfOpen: null }),
+      wf: wf,
+      wfWeek: this.field(wf.week, v => ({ week: v })),
+      wfBy: this.field(wf.by, v => ({ by: v })),
+      wfAcc: this.field(wf.acc, v => ({ acc: v })),
+      wfPlan: this.field(wf.plan, v => ({ plan: v })),
+      wfRisk: this.field(wf.risk, v => ({ risk: v })),
+      wfIssue: this.field(wf.issue, v => ({ issue: v })),
+      wfAct: this.field(wf.act, v => ({ act: v })),
+      btnPrimary: this.btn(true),
+      btnPlain: this.btn(false),
+      submitWf: () => {
+        const lines = t => String(t || "").split("\n").map(x => x.trim()).filter(Boolean);
+        const item = {
+          key: "wf-" + Date.now(), created: true, week: wf.week || "—",
+          file: "Weekly Status Report (created in portal)",
+          by: wf.by || "Project Manager", status: "Submitted", href: "#",
+          groups: [
+            { label: "Accomplishments this week", items: lines(wf.acc) },
+            { label: "Planned activities next week", items: lines(wf.plan) },
+            { label: "Risks", items: lines(wf.risk).length ? lines(wf.risk) : ["N/A"] },
+            { label: "Issues", items: lines(wf.issue).length ? lines(wf.issue) : ["N/A"] },
+            { label: "Customer actions and decisions", items: lines(wf.act).length ? lines(wf.act) : ["N/A"] }
+          ]
+        };
+        this.setState(s => ({
+          wfOpen: null, report: item.key,
+          extra: Object.assign({}, s.extra, { [c.id]: [item].concat(s.extra[c.id] || []) })
+        }));
+      },
+      fileRef: this.fileInput,
+      pickFile: () => this.fileInput.current && this.fileInput.current.click(),
+      onFile: (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        const today = new Date();
+        const items = files.map((f, i) => ({
+          key: "up-" + Date.now() + "-" + i,
+          week: today.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+          file: f.name, by: c.pm === "—" ? "Program Office" : c.pm, status: "Uploaded", href: "#"
+        }));
+        e.target.value = "";
+        this.setState(s => ({ report: items[0].key, extra: Object.assign({}, s.extra, { [c.id]: items.concat(s.extra[c.id] || []) }) }));
+      }
+    });
+  }
+}
+
+</script>
+</body>
+</html>
